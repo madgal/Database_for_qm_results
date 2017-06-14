@@ -1,5 +1,5 @@
 # qmcpack_buddy
-A database for retrieving and adding results generated via qmcpack (including the input files). Also generates qmcpack input using quantum package.
+A database for retrieving and adding results generated via quantum package.
 
 To use, the database may need to be reinitialized. 
 On Linux:

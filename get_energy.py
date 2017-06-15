@@ -281,8 +281,7 @@ if __name__ == '__main__':
 
         data = Data(data)
 
-#        yaxis_title = "%s (%s)" % (dict_name, unit_dict[dict_name])
-        yaxis_title = "coucou"
+        yaxis_title = "%s (%s)" % (dict_name, unit_dict[dict_name])
 
         layout = Layout(title='Fig 1: G2 %s' % dict_name,
                         xaxis=XAxis(autotick=False,

@@ -10,14 +10,14 @@ Usage:
 			--basis=<basis_set>  
 			--geo=<geometry>
 			[--path=<path_name>] 
-			[--pseudopotential=<True_or_False>]
+			[--pseudopotential=<name_of_pp>]
 			[--n_det=<max_number_of_determinants>]
 
   generate_input.py vmc --ele=<element_name> 
 			--basis=<basis_set>  
 			--geo=<geometry>
 			[--path=<path_name>] 
-			[--pseudopotential=<bfd>]
+			[--pseudopotential=<name_of_pp>]
 			[--n_det=<max_number_of_determinants>]
 
 Example of use:
@@ -108,6 +108,12 @@ if __name__ == '__main__':
 	#### otherwise set it to the quantum package default
 	NDET=10000
 
+    if arguments["--pseudopotential"]:
+        usePP = arguments["--pseudopotential"]
+    else:
+        usePP = False
+
+
     #################################################################
     ### Now create the ezfio file for submission to quantum_package
     ### Convert to qmcpack input format 
@@ -117,7 +123,7 @@ if __name__ == '__main__':
 
     ### YOU CAN UNCOMMENT THESE LINES IF WANT TO RETURN TO SPLITTING UP
     ### SCF AND CIPSI CALCULATIONS
-    generateCalculationFileQP_SCF_FCI(path,filepath,basis,m,rootname,NDET)
+    generateCalculationFileQP_SCF_FCI(path,filepath,basis,m,rootname,NDET,usePP)
     
     scf_rootname= str(element)+"_"+geometry+"_"+str(basis)
     scf_rootname = scf_rootname.replace(" ","")

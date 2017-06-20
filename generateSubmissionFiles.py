@@ -1,4 +1,4 @@
-def generateCalculationFileQP_SCF_FCI(path,inputFile,basis,m,rootname,NDET):
+def generateCalculationFileQP_SCF_FCI(path,filepath,basis,m,rootname,NDET,usePP):
 	##############################################
 	#### GENERATE THE CALCULATION FILE THAT WILL 
 	#### BE CALLED IN THE SUBMISSION FILE
@@ -21,7 +21,10 @@ def generateCalculationFileQP_SCF_FCI(path,inputFile,basis,m,rootname,NDET):
 	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
 
 	fileMain = "### first create the ezfio file\n"
-	fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
+	if usePP:
+		fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -p "+str(usePP)+" -o " +ezfio_filename+"\")\n"
+	else:
+		fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
 	fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
 	fileMain = fileMain +"ezfio.set_determinants_n_det_max("+str(NDET)+")\n"
 	fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_ao_integrals(\"Write\")\n"

@@ -113,13 +113,12 @@ if __name__ == '__main__':
 
     ### YOU CAN UNCOMMENT THESE LINES IF WANT TO RETURN TO SPLITTING UP
     ### SCF AND CIPSI CALCULATIONS
-    #generateSubmissionFileQP_SCF(path,basis,m,rootname,NDET)
-    #generateSubmissionFileQP_FCI(rootname)
-    generateSubmissionFileQP_SCF_FCI(path,basis,m,rootname,NDET)
+    generateCalculationFileQP_SCF_FCI(path,basis,m,rootname,NDET)
     
     scf_rootname= str(element)+"_"+geometry+"_"+str(basis)
     scf_rootname = scf_rootname.replace(" ","")
     ### fci_rootname is the same as the rootname
+    generateSubmissionFileQP_SCF_FCI(scf_rootname,rootname)
 
     ################################################################
     ####   GENERATE THE HAMILTONIAN FOR THE MOLECULES
@@ -132,10 +131,10 @@ if __name__ == '__main__':
     ### Also generate the appropriate blocks
     #################################################################
 
-    generateOptBlocks(scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
-    generateOptBlocks(scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
-    generateOptBlocks(rootname+"_NoJastrow",hamiltonian_rootname)
-    generateOptBlocks(rootname+"_Jastrow",hamiltonian_rootname)
+    #generateOptBlocks(scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
+    #generateOptBlocks(scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
+    #generateOptBlocks(rootname+"_NoJastrow",hamiltonian_rootname)
+    #generateOptBlocks(rootname+"_Jastrow",hamiltonian_rootname)
     generateOptBlocks(rootname+"_ReOptJastrow",hamiltonian_rootname)
 
     if arguments["dmc"]:
@@ -156,4 +155,4 @@ if __name__ == '__main__':
     #### NOW GENERATE THE SUBMISSION FILES   
     #### AND THE MASTER SUBMISSION FILE
     ################################################################
-    generateMasterSubmissionFile(scf_rootname,rootname)
+    generateMasterSubmissionFile(rootname)

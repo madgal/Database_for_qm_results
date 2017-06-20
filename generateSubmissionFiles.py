@@ -1,18 +1,13 @@
-##############################################
-########## THIS FILE GENERATES INPUT #########
-######### SCRIPTS FROM QP TO QMC #############
-##############################################
-
-def generateCalculationFileQP_SCF_FCI(path,basis,m,rootname,NDET):
+def generateCalculationFileQP_SCF_FCI(path,inputFile,basis,m,rootname,NDET):
 	##############################################
 	#### GENERATE THE CALCULATION FILE THAT WILL 
 	#### BE CALLED IN THE SUBMISSION FILE
 	##############################################
-	ezfio_filename = rootname + ".ezfio"
-	SCF_out_filename = rootname + ".SCF.out"
-	FCI_out_filename = rootname + ".FCI.out"
-	SCF_dump_filename = rootname + ".SCF.dump"
-	FCI_dump_filename = rootname + ".FCI.dump"
+	ezfio_filename = path + "/"+rootname + ".ezfio"
+	SCF_out_filename =path + "/"+ rootname + ".SCF.out"
+	FCI_out_filename =path + "/"+ rootname + ".FCI.out"
+	SCF_dump_filename =path + "/"+ rootname + ".SCF.dump"
+	FCI_dump_filename =path + "/"+ rootname + ".FCI.dump"
 
 
 	### BEGIN FILECREATION
@@ -26,7 +21,7 @@ def generateCalculationFileQP_SCF_FCI(path,basis,m,rootname,NDET):
 	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
 
 	fileMain = "### first create the ezfio file\n"
-	fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(path)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
+	fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
 	fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
 	fileMain = fileMain +"ezfio.set_determinants_n_det_max("+str(NDET)+")\n"
 	fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_ao_integrals(\"Write\")\n"
@@ -52,15 +47,12 @@ def generateCalculationFileQP_SCF_FCI(path,basis,m,rootname,NDET):
 	fileMain = fileMain +"   os.system(\"qp_run fci_zmq "+ezfio_filename+"/ > "+FCI_out_filename+"\")\n"
 	fileMain = fileMain +"   os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+FCI_dump_filename+"\")\n"
 
-	fileoutName = "qp_submission1_"+rootname+".py"
+	fileoutName =path+"/"+ "qp_submission1_"+rootname+".py"
 	with open(fileoutName,"w") as fileout:
 		fileout.write("%s" %fileHeader)
 		fileout.write("%s" %fileMain)
 
-#############################################################
-#############################################################
-#############################################################
-def generateSubmissionFileQP_SCF_FCI(scf_rootname,rootname):
+def generateSubmissionFileQP_SCF_FCI(path,scf_rootname,rootname):
 	##############################################
 	#### GENERATE THE SUBMISSION FILE FOR QP CALC
 	#### AND THEN CONVERSION TO QMC
@@ -72,7 +64,7 @@ def generateSubmissionFileQP_SCF_FCI(scf_rootname,rootname):
 	header = header+ "source /soft/applications/quantum_package/quantum_package.rc\n"
 	header = header+"MPIRUN=True\n"
 	header = header+"chmod 744 qp_submission1_"+rootname+".py\n"
-	header = header+"./qp_submission1_"+rootname+".py $MPIRUN\n")
+	header = header+"./qp_submission1_"+rootname+".py $MPIRUN\n"
 
 	##### CONVERT THE RESULTS FROM CIPSI/HF METHODS INTO QMC INPUT
 	##### ONLY THE WAVEFUNCTION AND PARTICLESET
@@ -104,15 +96,12 @@ def generateSubmissionFileQP_SCF_FCI(scf_rootname,rootname):
 	main = main+"os.system(\"mv sample.Gaussian-g2.ptcl.xml " +rootname+"_ReOptJastrow.ptcl.xml\")\n"
 
 	### CREATE SUBMISSION FILE FOR QP calcs
-	subFile = "qp_submission1_"+rootname+".sh"
+	subFile =path +"/"+ "qp_submission1_"+rootname+".sh"
 	with open(subFile, "w") as fileOut:
 		fileOut.write("%s" %header)
 		fileOut.write("%s" %main)
 
-#############################################################
-#############################################################
-#############################################################
-def generateHamiltonian(rootname):
+def generateHamiltonian(path,rootname):
 	#################################################
 	#### GENERATE THE HAMILTONIAN IN ITS OWN XML FILE
 	#################################################
@@ -129,16 +118,13 @@ def generateHamiltonian(rootname):
         header = header+ "</hamiltonian>\n"
 	header = header+ "</qmcsystem>\n"
 	
-	hamiltonian_filename = hamiltonian_rootname+".ham.xml"
+	hamiltonian_filename =path+"/"+ hamiltonian_rootname+".ham.xml"
 
 	print hamiltonian_filename
 	with open(hamiltonian_filename,"w") as fileOut:
 		fileOut.write("%s" %header)
  
-#############################################################
-#############################################################
-#############################################################
-def generateOptBlocks(rootname,hamName):
+def generateOptBlocks(path,rootname,hamName):
 	##########################################
 	#### GENERATE THE QMC RUN FOR OPTIMIZATION
 	##########################################
@@ -154,16 +140,13 @@ def generateOptBlocks(rootname,hamName):
 	optimizationBlock=""
 	ending = "</simulation>\n"
 
-	fileOutName = rootname+".opt.xml"
+	fileOutName = path+"/"+rootname+".opt.xml"
 	with open(fileOutName,"w") as fileOut:
 		fileOut.write("%s" %header)
 		fileOut.write("%s" %optimizationBlock)
 		fileOut.write("%s" %ending)
 
-#############################################################
-#############################################################
-#############################################################
-def generateDMCBlocks(rootname,hamName):
+def generateDMCBlocks(path,rootname,hamName):
 	##########################################
 	#### GENERATE THE DMC RUN BLOCK     ######
 	##########################################
@@ -179,16 +162,13 @@ def generateDMCBlocks(rootname,hamName):
 	### default to generate optimization and dmc blocks
         dmcBlock=""
 	ending = "</simulation>\n"
-	fileOutName = rootname+".dmc.xml"
+	fileOutName = path +"/"+rootname+".dmc.xml"
 	with open(fileOutName,"w") as fileOut:
 		fileOut.write("%s" %header)
 		fileOut.write("%s" %dmcBlock)
 		fileOut.write("%s" %ending)
 
-#############################################################
-#############################################################
-#############################################################
-def generateVMCBlocks(rootname,hamName):
+def generateVMCBlocks(path,rootname,hamName):
 	##########################################
 	#### GENERATE THE VMC RUN BLOCK     ######
 	##########################################
@@ -203,23 +183,20 @@ def generateVMCBlocks(rootname,hamName):
 	## generate optimization blocks and vmc blocks
 	vmcBlock=""
 	ending = "</simulation>\n"
-	fileOutName = rootname+".vmc.xml"
+	fileOutName = path+"/"+rootname+".vmc.xml"
 	with open(fileOutName,"w") as fileOut:
 		fileOut.write("%s" %header)
 		fileOut.write("%s" %vmcBlock)
 		fileOut.write("%s" %ending)
 
   
-#############################################################
-#############################################################
-#############################################################
-def generateMasterSubmissionFile(rootname):
+def generateMasterSubmissionFile(path,rootname):
 	##########################################
 	#### GENERATE THE MASTER SUBMISSION FILE # 
 	#### THIS WILL BE ABLE TO EXECUTE THE CALCULATION
 	#### FROM SCF INPUT TO QMC OUTPUT
 	##########################################
-	subFile = "qp_submission1_"+rootname+".sh"
+	subFile = path+"/"+"qp_submission1_"+rootname+".sh"
 
 	######################################################
 	### CREATE CONVERSION FILE FOR QMC
@@ -228,7 +205,7 @@ def generateMasterSubmissionFile(rootname):
 	outputline = "OUTPUT="+rootname+"_output\n"
 	qsubline = "qsub -A $ACCT -t $TIME -n $NODES -O OUTPUT ./"+subFile
 	
-	submissionFile = "masterSubmission_"+rootname+".sh"
+	submissionFile = path+"/"+"masterSubmission_"+rootname+".sh"
 	with open(submissionFile,"w") as fileOut:
 		fileOut.write(header)
 		fileOut.write(outputline)

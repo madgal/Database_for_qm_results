@@ -80,11 +80,14 @@ if __name__ == '__main__':
     
     if arguments["--path"]:
          path = arguments["--path"]
-         filepath = path
+         filepath = "_".join([geometry, element])
+         filepath = path + filepath + g.ext
+	 print filepath
     else:
          #path = "_".join([".".join(l_geo), ".".join(l_ele)])
+	 path="/tmp/"
          filepath = "_".join([geometry, element])
-         filepath = "/tmp/" + path + g.ext
+         filepath = "/tmp/" + filepath + g.ext
     with open(filepath, 'w') as f:
          f.write(str_ + "\n")
     print path
@@ -109,51 +112,51 @@ if __name__ == '__main__':
     ### Now create the ezfio file for submission to quantum_package
     ### Convert to qmcpack input format 
     #################################################################
-    rootname = path+"/"+str(element)+"_"+geometry+"_"+str(basis)+"_"+str(NDET)
+    rootname = str(element)+"_"+geometry+"_"+str(basis)+"_"+str(NDET)
     rootname = rootname.replace(" ","")
 
     ### YOU CAN UNCOMMENT THESE LINES IF WANT TO RETURN TO SPLITTING UP
     ### SCF AND CIPSI CALCULATIONS
-    generateCalculationFileQP_SCF_FCI(filepath,basis,m,rootname,NDET)
+    generateCalculationFileQP_SCF_FCI(path,filepath,basis,m,rootname,NDET)
     
-    scf_rootname= path+"/"+str(element)+"_"+geometry+"_"+str(basis)
+    scf_rootname= str(element)+"_"+geometry+"_"+str(basis)
     scf_rootname = scf_rootname.replace(" ","")
     ### fci_rootname is the same as the rootname
-    generateSubmissionFileQP_SCF_FCI(scf_rootname,rootname)
+    generateSubmissionFileQP_SCF_FCI(path,scf_rootname,rootname)
 
     ################################################################
     ####   GENERATE THE HAMILTONIAN FOR THE MOLECULES
     ################################################################
-    hamiltonian_rootname=path+"/"+str(element)+"_"+geometry+"_"+str(basis)
+    hamiltonian_rootname=str(element)+"_"+geometry+"_"+str(basis)
     hamiltonian_rootname = hamiltonian_rootname.replace(" ","")
-    generateHamiltonian(hamiltonian_rootname)
+    generateHamiltonian(path,hamiltonian_rootname)
 
     #################################################################
     ### Also generate the appropriate blocks
     #################################################################
 
-    #generateOptBlocks(scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
-    #generateOptBlocks(scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
-    #generateOptBlocks(rootname+"_NoJastrow",hamiltonian_rootname)
-    #generateOptBlocks(rootname+"_Jastrow",hamiltonian_rootname)
-    generateOptBlocks(rootname+"_ReOptJastrow",hamiltonian_rootname)
+    #generateOptBlocks(path,scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
+    #generateOptBlocks(path,scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
+    #generateOptBlocks(path,rootname+"_NoJastrow",hamiltonian_rootname)
+    #generateOptBlocks(path,rootname+"_Jastrow",hamiltonian_rootname)
+    generateOptBlocks(path,rootname+"_ReOptJastrow",hamiltonian_rootname)
 
     if arguments["dmc"]:
-    	generateDMCBlocks(scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
-    	generateDMCBlocks(scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
-    	generateDMCBlocks(rootname+"_NoJastrow",hamiltonian_rootname)
-    	generateDMCBlocks(rootname+"_Jastrow",hamiltonian_rootname)
-    	generateDMCBlocks(rootname+"_ReOptJastrow",hamiltonian_rootname)
+    	generateDMCBlocks(path,scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
+    	generateDMCBlocks(path,scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
+    	generateDMCBlocks(path,rootname+"_NoJastrow",hamiltonian_rootname)
+    	generateDMCBlocks(path,rootname+"_Jastrow",hamiltonian_rootname)
+    	generateDMCBlocks(path,rootname+"_ReOptJastrow",hamiltonian_rootname)
 
     elif arguments["vmc"]:
- 	generateVMCBlocks(scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
-    	generateVMCBlocks(scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
-    	generateVMCBlocks(rootname+"_NoJastrow",hamiltonian_rootname)
-    	generateVMCBlocks(rootname+"_Jastrow",hamiltonian_rootname)
-    	generateVMCBlocks(rootname+"_ReOptJastrow",hamiltonian_rootname)
+ 	generateVMCBlocks(path,scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)
+    	generateVMCBlocks(path,scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
+    	generateVMCBlocks(path,rootname+"_NoJastrow",hamiltonian_rootname)
+    	generateVMCBlocks(path,rootname+"_Jastrow",hamiltonian_rootname)
+    	generateVMCBlocks(path,rootname+"_ReOptJastrow",hamiltonian_rootname)
 
     ################################################################
     #### NOW GENERATE THE SUBMISSION FILES   
     #### AND THE MASTER SUBMISSION FILE
     ################################################################
-    generateMasterSubmissionFile(rootname)
+    generateMasterSubmissionFile(path,rootname)

@@ -145,7 +145,7 @@ if __name__ == '__main__':
     #generateOptBlocks(path,scf_rootname+"_1Det_Jastrow",hamiltonian_rootname)
     #generateOptBlocks(path,rootname+"_NoJastrow",hamiltonian_rootname)
     #generateOptBlocks(path,rootname+"_Jastrow",hamiltonian_rootname)
-    generateOptBlocks(path,rootname+"_ReOptJastrow",hamiltonian_rootname)
+    #generateOptBlocks(path,rootname+"_ReOptJastrow",hamiltonian_rootname)
 
     if arguments["dmc"]:
     	generateDMCBlocks(path,scf_rootname+"_1Det_NoJastrow",hamiltonian_rootname)

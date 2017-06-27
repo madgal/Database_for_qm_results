@@ -126,11 +126,16 @@ if __name__ == '__main__':
     #A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
     A2M_out_filename =rootname + ".ao2mo.out"
 
-    noJ_1det_path = path +"/1Det_NoJastrow/" +rootname
-    J_1det_path = path +"/1Det_Jastrow/" +rootname
-    noJ_Multidet_path = path +"/"+str(NDET)+"Det_Jastrow/" +rootname
-    J_Multidet_path = path +"/"+str(NDET)+"Det_Jastrow/" +rootname
-    J_Multidet_reopt_path = path +"/"+str(NDET)+"Det_Jastrow_reOpt/" +rootname
+    noJ_1det_path = path +"/1Det_NoJastrow" 
+    buildQMCDirectories(noJ_1det_path)
+    J_1det_path = path +"/1Det_Jastrow"
+    buildQMCDirectories(J_1det_path)
+    noJ_Multidet_path = path +"/"+str(NDET)+"Det_Jastrow" 
+    buildQMCDirectories(noJ_Multidet_path)
+    J_Multidet_path = path +"/"+str(NDET)+"Det_Jastrow"
+    buildQMCDirectories(J_Multidet_path)
+    J_Multidet_reopt_path = path +"/"+str(NDET)+"Det_Jastrow_reOpt"
+    buildQMCDirectories(J_Mutlidet_reopt_path,fileroot)
 	
 
     def generateMasterFile():
@@ -308,34 +313,50 @@ if __name__ == '__main__':
 
 	fileMain ="os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+FCI_dump_filename+"\")\n"
 	### NO JASTROW AND 1 DET		
+	fileRoot = rootname+"_1Det_NoJastrow"
 	main = "os.system(\""+BINDIR+"/convert4qmc -QP "+SCF_dump_filename+" -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +noJ_1det_path+"/"+rootname+"_1Det_NoJastrow.wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +noJ_1det_path+"/"+rootname+"_1Det_NoJastrow.ptcl.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +noJ_1det_path+"/"+fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +noJ_1det_path+"/"+fileroot+".ptcl.xml\")\n"
 
 	### PLAIN JASTROW AND 1 DET		
+	fileRoot = rootname+"_1Det_Jastrow"
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+SCF_dump_filename+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_1det_path+"/"+rootname+"_1Det_Jastrow.wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_1det_path+"/"+rootname+"_1Det_Jastrow.ptcl.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_1det_path+"/"+fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_1det_path+"/"+fileroot+".ptcl.xml\")\n"
 
 	### NO JASTROW AND MULTI-DETERMINANT
+	fileroot=rootname +"_"+str(NDET)+"_NoJastrow"
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+FCI_dump_filename+" -addCusp \" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +noJ_Multidet_path+"/"+rootname+"_"+str(NDET)+"_NoJastrow.wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +noJ_Multidet_path+"/"+rootname+"_"+str(NDET)+"_NoJastrow.ptcl.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +noJ_Multidet_path+"/"+fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +noJ_Multidet_path+"/"+fileroot+".ptcl.xml\")\n"
 
 	### PLAIN JASTROW AND MULTI-DETERMINANT
+	fileroot=rootname +"_"+str(NDET)+"_Jastrow"
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+FCI_dump_filename+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_Multidet_path+"/"+rootname+"_"+str(NDET)+"_Jastrow.wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_Multidet_path+"/"+rootname+"_"+str(NDET)+"_Jastrow.ptcl.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_Multidet_path+"/"+fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_Multidet_path+"/"+fileroot+".ptcl.xml\")\n"
 
 	### OPTIMIZED JASTROW AND MULTI-DETERMINANT
+	fileroot = rootname +"_"+str(NDET)+"_ReOptJastrow"
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+FCI_dump_filename+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_Multidet_reopt_path+"/"+rootname+"_"+str(NDET)+"_ReOptJastrow.wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_Multidet_reopt_path+"/"+rootname+"_"+str(NDET)+"_ReOptJastrow.ptcl.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_Multidet_reopt_path+"/"+fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_Multidet_reopt_path+"/"+fileroot+".ptcl.xml\")\n"
 	
 
         fileoutName = path + "/"+ "conversion_" +rootname+".py"
 	with open(fileoutName,"w") as fileout:
 		fileout.write("%s" %fileHeader)
 		fileout.write("%s" %fileMain)
+
+    def buildQMCDirectories(directory,fileroot):
+	main =""
+	main = main + "os.system(\"mkdir " +directory+"\")\n"
+	main = main + "os.system(\"mkdir " + directory+"/CuspCorrection\")\n"
+	generateCuspCorrection(directory,fileroot)
+	main = main + "os.system(\"mkdir " + directory+"/Optimization\")\n"
+	generateOptimization(directory,fileroot)
+	main = main + "os.system(\"mkdir " + directory+"/DMC\")\n"
+	generateDMC(directory,fileroot)
+
 
     generateMasterFile()

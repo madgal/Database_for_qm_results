@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-You can create or modify a run_id and put_in new data in it.
+You can create or modify a run_id and add_results.
 
 Usage:
   put_in_database.py (-h | --help)
-  put_in_database.py put_in --path=<path>
+  put_in_database.py add_results --path=<path>
                      (--method=<method_name> --basis=<basis_name>
                       --geo=<geometry_name> --comment=<comment>|
                       --run_id=<id>)
@@ -110,4 +110,5 @@ if __name__ == '__main__':
             add_qmc_energy(run_id, id_, e, err,
                            overwrite=arguments["--overwrite"])
 
+	print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
     conn.commit()

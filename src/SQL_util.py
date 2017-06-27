@@ -327,6 +327,10 @@ def add_energies_cispi(run_list, geo_list, basis_list, path, tail,
 
             index += 1
 
+def add_qmc_input_metadata():
+    # Add input files to database so that others can verify/recreate results
+    print "Add qmc info"
+
 
 # ______                         _
 # |  ___|                       | |
@@ -379,3 +383,9 @@ def get_g09(geo, ele, only_neutral=True):
         g09_file_format.append(line)
     g09_file_format.append("\n\n\n")
     return "\n".join(map(str, g09_file_format))
+
+def get_qmc_input_metadata():
+    # Retrieve input files from database either for starting a new calcualtion or verifying/recreating results
+    print "Get qmc info"
+
+

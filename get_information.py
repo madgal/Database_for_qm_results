@@ -3,31 +3,31 @@
 
 """
 Usage:
-  setup_and_run.py (-h | --help)
-  setup_and_run.py list_geometries  [--ele=<element_name>...]
-  setup_and_run.py list_elements     --geo=<geometry_name>...
-  setup_and_run.py get_multiplicity  --ele=<element_name>
-  setup_and_run.py get_xyz    --geo=<geometry_name>...
+  get_information.py (-h | --help)
+  get_information.py list_geometries  [--ele=<element_name>...]
+  get_information.py list_elements     --geo=<geometry_name>...
+  get_information.py get_multiplicity  --ele=<element_name>
+  get_information.py get_xyz    --geo=<geometry_name>...
                         --ele=<element_name>...
                             [(--save [--path=<path>])]
-  setup_and_run.py get_g09    --geo=<geometry_name>...
+  get_information.py get_g09    --geo=<geometry_name>...
                         --ele=<element_name>...
                               [(--save [--path=<path>])]
-  setup_and_run.py get_target_pt2_max --hf_id=<run_id>
+  get_information.py get_target_pt2_max --hf_id=<run_id>
                                 --fci_id=<run_id>
                                 [--g2_set1 |
                                  --g2_set2 |
                                  --ele=<element_name>...]
                                 [--quality_factor=<qf>]
-  setup_and_run.py get_this_ae  --run_atom=<run_id>
+  get_information.py get_this_ae  --run_atom=<run_id>
                           (--ae_ref=<ae_value>... | --ae_nr)
                           [--g2_set1 |
                            --g2_set2 |
                            --ele=<element_name>...]
 Example of use:
-  ./setup_and_run.py list_geometries
-  ./setup_and_run.py list_elements --geo Experiment
-  ./setup_and_run.py get_xyz --geo Experiment --ele NaCl --ele H3CCl
+  ./get_information.py list_geometries
+  ./get_information.py list_elements --geo Experiment
+  ./get_information.py get_xyz --geo Experiment --ele NaCl --ele H3CCl
 """
 
 version = "0.0.1"

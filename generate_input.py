@@ -9,7 +9,8 @@ Usage:
   generate_input.py dmc --ele=<element_name> 
 			--basis=<basis_set>  
 			--geo=<geometry>
-			[--path=<path_name>] 
+			[--submit_path=<path_name>] 
+			[--write_path=<path_name>] 
 			[--pseudopotential=<name_of_pp>]
 			[--n_det=<max_number_of_determinants>]
 
@@ -25,7 +26,7 @@ try:
     from src.docopt import docopt
     from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
     from src.SQL_util import get_xyz, get_g09
-    #from generateSubmissionFiles import *
+    from generateSubmissionFiles import *
 except:
     print "File in misc is corupted. Git reset may fix the issues"
     sys.exit(1)
@@ -41,6 +42,7 @@ if __name__ == '__main__':
 	element = arguments["--ele"]
 	geometry = arguments["--geo"]
 	basis   = arguments["--basis"]
+        mainDirectory = element + "_"+geometry +"_"+basis
 
     if arguments["--pseudopotential"]:
 	pp = arguments["--pseudopotential"]
@@ -70,19 +72,31 @@ if __name__ == '__main__':
 
     str_ = "\n\n".join(to_print)
     
-    if arguments["--path"]:
-         path = arguments["--path"]
+    if arguments["--write_path"]:
+         path = arguments["--write_path"]
+	 path = path +"/"+mainDirectory
+	 if not os.path.exists(path):
+ 	     os.system("mkdir "+path)
          inputFile= "_".join([element, geometry])
-         filepath = path +"/"+ inputFile+ g.ext
-	 print filepath
+	 inputFile=inputFile+ g.ext
+         filepath = path +"/"+ inputFile
+	 #print filepath
     else:
          #path = "_".join([".".join(l_geo), ".".join(l_ele)])
-	 path="/tmp/"
+	 path="/tmp/"+mainDirectory
+	 if not os.path.exists(path):
+	     os.system("mkdir "+path)
          inputFile= "_".join([element, geometry])
-         filepath = "/tmp/" + inputFile+ g.ext
+	 inputFile=inputFile+ g.ext
+         filepath = path + inputFile
     with open(filepath, 'w') as f:
          f.write(str_ + "\n")
-    print path
+    print "Files will be placed in  %s" %path
+
+    if arguments["--submit_path"]:
+	sub_path = arguments["--submit_path"]
+    else:
+        sub_path=path
 
 
 
@@ -101,6 +115,21 @@ if __name__ == '__main__':
 	NDET=10000
 
 
+    def buildQMCDirectories(baseDir,fileroot):
+	directory = path + "/"+ baseDir
+	if not(os.path.isdir(directory)):
+	    os.system("mkdir " +directory)
+	if not(os.path.isdir(directory+"/CuspCorrection")):
+	    os.system("mkdir " + directory+"/CuspCorrection")
+	generateCuspCorrection(directory,fileroot,sub_path,baseDir)
+	if not(os.path.isdir(directory+"/Optimization")):
+    	    os.system("mkdir " + directory+"/Optimization")
+	generateOptimization(directory,fileroot,sub_path,baseDir)
+	if not(os.path.isdir(directory+"/DMC")):
+	    os.system("mkdir " + directory+"/DMC")
+	generateDMC(directory,fileroot,sub_path,baseDir)
+
+
     #####################################################################
     ### Now define the variables that will be needed in all of the calls
     #####################################################################
@@ -117,7 +146,7 @@ if __name__ == '__main__':
     fci_rootname = fci_rootname.replace(" ","")
     fci_dumpname = fci_rootname + ".dump"
     #FCI_out_filename =path + "/"+ rootname + ".FCI.out"
-    FCI_out_filename = rootname + ".FCI.out"
+    FCI_out_filename = fci_rootname + ".FCI.out"
 
     #ezfio_filename = path + "/"+rootname + ".ezfio"
     ezfio_filename = rootname + ".ezfio"
@@ -126,22 +155,47 @@ if __name__ == '__main__':
     #A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
     A2M_out_filename =rootname + ".ao2mo.out"
 
-    noJ_1det_path = path +"/1Det_NoJastrow" 
-    buildQMCDirectories(noJ_1det_path)
-    J_1det_path = path +"/1Det_Jastrow"
-    buildQMCDirectories(J_1det_path)
-    noJ_Multidet_path = path +"/"+str(NDET)+"Det_Jastrow" 
-    buildQMCDirectories(noJ_Multidet_path)
-    J_Multidet_path = path +"/"+str(NDET)+"Det_Jastrow"
-    buildQMCDirectories(J_Multidet_path)
-    J_Multidet_reopt_path = path +"/"+str(NDET)+"Det_Jastrow_reOpt"
-    buildQMCDirectories(J_Mutlidet_reopt_path,fileroot)
+    pythonCalculationFilename1 ="setup_and_runscf_"+rootname+".py"
+    pythonCalculationFilename2 ="ao_2_mo_"+rootname+".py"
+    pythonCalculationFilename3 ="run_fci_"+rootname+".py"
+    pythonCalculationFilename4= "conversion_" +rootname+".py"
+
+    doSCF=True
+    if os.path.exists(path+"/1Det_NoJastrow"):
+	doSCF=False
+
+    if doSCF:
+	noJ_1det_base = "1Det_noJastrow"
+        noJ_1det_path = path +"/"+noJ_1det_base
+        noJ_1det_fileroot = rootname+"_"+noJ_1det_base
+        buildQMCDirectories(noJ_1det_base,noJ_1det_fileroot)
+
+	J_1det_base = "1Det_Jastrow"
+        J_1det_path = path +"/"+J_1det_base
+        J_1det_fileroot = rootname+"_"+ J_1det_base
+        buildQMCDirectories(J_1det_base,J_1det_fileroot)
+
+    noJ_Multidet_base = str(NDET)+"Det_NoJastrow" 
+    noJ_Multidet_path = path +"/"+noJ_Multidet_base
+    noJ_Multidet_fileroot=rootname +"_"+noJ_Multidet_base
+    buildQMCDirectories(noJ_Multidet_base,noJ_Multidet_fileroot)
+
+    J_Multidet_base =str(NDET)+"Det_Jastrow"
+    J_Multidet_path = path +"/"+J_Multidet_base
+    J_Multidet_fileroot=rootname +"_"+J_Multidet_base
+    buildQMCDirectories(J_Multidet_base,J_Multidet_fileroot)
+
+    J_Multidet_reopt_base =str(NDET)+"Det_Jastrow_reOpt"
+    J_Multidet_reopt_path = path +"/"+J_Multidet_reopt_base
+    J_Multidet_reopt_fileroot = rootname +"_"+J_Multidet_reopt_base
+    buildQMCDirectories(J_Multidet_reopt_base,J_Multidet_reopt_fileroot)
 	
 
     def generateMasterFile():
 	
-        generate_QP_SCFCalculation()
-        generate_scfDump_ao2moTransform()
+        if doSCF:
+            generate_QP_SCFCalculation()
+            generate_scfDump_ao2moTransform()
         generate_fciCalculation()
 	generate_fciDump_conversions_qmcBlocks()
 	"""if arguments["vmc"]: 
@@ -150,58 +204,99 @@ if __name__ == '__main__':
 		generate_fciDump_conversions_qmcBlocks("dmc")
 	"""
 
+	generate_mpirunFile()
 
 	### now output them into a master script
 
 	##########################################
-       	#### GENERATE THE MASTER SUBMISSION FILE # 
+       	#### GENERATE THE SUBMISSION FILES  
 	#### THIS WILL BE ABLE TO EXECUTE THE CALCULATION
 	#### FROM SCF INPUT TO QMC OUTPUT
 	##########################################
 
-	file = "#!/bin/bash\nACCT=QMCPACK\n"
-	file = file+ "source /soft/applications/quantum_package/quantum_package.rc\n\n"
 
 	##################################
 	### CREATE THE EZFIO AND RUN SCF
 	##################################
-	file = file+ "\nTIME=12:00:00\nNODES=8\n"
-	file =file + "OUTPUT="+rootname+"_scf_output\n"
-	subFile = "setup_and_runscf_"+rootname+".sh"
-	file =file+ "qsub -A $ACCT -t $TIME -n $NODES -O OUTPUT ./"+subFile + "\n\n"
+	file1 = "#!/bin/bash\nACCT=QMCPACK\n"
+	file1 = file1+ "\nTIME=12:00:00\nNODES=8\n"
+	file1 =file1 + "OUTPUT="+rootname+"_scf\n\n"
+	subFile1 = "setup_and_runscf_"+rootname+".sh"
+	file1 =file1+ "qsub -A $ACCT -t $TIME -n $NODES -O $OUTPUT ./"+subFile1 
+	submissionFile1 = path+"/"+"submission1_"+rootname+".sh"
+	with open(submissionFile1,"w") as fileOut:
+		fileOut.write(file1)
 
+        pyfile1 = "#!/bin/bash\n"
+	pyfile1 = pyfile1 + "source /soft/applications/quantum_package/quantum_package.rc\n"
+	pyfile1 = pyfile1 +"MPIRUN=True\n\n"
+	pyfile1 = pyfile1 +"./"+pythonCalculationFilename1+" $MPIRUN"
+	fileoutName = path +"/"+subFile1
+	with open(fileoutName,"w") as fileOut:
+		fileOut.write(pyfile1)
+    
 
 	##################################
 	### DO THE AO TO MO TRANSFORMATION
 	##################################
-	file = file+ "TIME=1:00:00\nNODES=1\n"
-	file =file + "OUTPUT="+rootname+"_ao2mo_output\n"
-	subFile = "ao_2_mo_"+rootname+".sh"
-	file =file+ "qsub -A $ACCT -t $TIME -n $NODES -O OUTPUT ./"+subFile + "\n\n"
+	file2 = "#!/bin/bash\nACCT=QMCPACK\n\n"
+	file2 = file2+ "TIME=1:00:00\nNODES=1\n"
+	file2 =file2 + "OUTPUT="+rootname+"_ao2mo\n\n"
+	subFile2 = "ao_2_mo_"+rootname+".sh"
+	file2 =file2+ "qsub -A $ACCT -t $TIME -n $NODES -O $OUTPUT ./"+subFile2 
+	submissionFile2 = path+"/"+"submission2_"+rootname+".sh"
+	with open(submissionFile2,"w") as fileOut:
+		fileOut.write(file2)
+
+        pyfile2 = "#!/bin/bash\n"
+	pyfile2 = pyfile2 + "source /soft/applications/quantum_package/quantum_package.rc\n\n"
+	pyfile2 = pyfile2 +"./"+pythonCalculationFilename2
+	fileoutName = path +"/"+subFile2
+	with open(fileoutName,"w") as fileOut:
+		fileOut.write(pyfile2)
+    
 
 
 	##################################
 	### RUN THE FCI_ZMQ CALCULATION 
 	##################################
-	file = file+ "TIME=12:00:00\nNODES=8\n"
-	file =file + "OUTPUT="+rootname+"_fci_output\n"
-	subFile = "run_fci_"+rootname+".sh"
-	file =file+ "qsub -A $ACCT -t $TIME -n $NODES -O OUTPUT ./"+subFile + "\n\n"
+	file3 = "#!/bin/bash\nACCT=QMCPACK\n\n"
+	file3 = file3+ "TIME=12:00:00\nNODES=8\n"
+	file3 =file3 + "OUTPUT="+rootname+"_fci\n\n"
+	subFile3 ="run_fci_"+rootname+".sh"
+	file3 =file3+ "qsub -A $ACCT -t $TIME -n $NODES -O $OUTPUT ./"+subFile3 
+	submissionFile3 = path+"/"+"submission3_"+rootname+".sh"
+	with open(submissionFile3,"w") as fileOut:
+		fileOut.write(file3)
 
-
+        pyfile3 = "#!/bin/bash\n"
+	pyfile3 = pyfile3 + "source /soft/applications/quantum_package/quantum_package.rc\n"
+	pyfile3 = pyfile3 +"MPIRUN=True\n\n"
+	pyfile3 = pyfile3 +"./"+pythonCalculationFilename3+" $MPIRUN"
+	fileoutName = path +"/"+subFile3
+	with open(fileoutName,"w") as fileOut:
+		fileOut.write(pyfile3)
+    
 	##################################
 	### DO THE CONVERSIONS FOR QMCPACK
 	##################################
-	file = file+ "TIME=1:00:00\nNODES=1\n"
-	file =file + "OUTPUT="+rootname+"_conversion_output\n"
-	subFile = "conversion_"+rootname+".sh"
-	file =file+ "qsub -A $ACCT -t $TIME -n $NODES -O OUTPUT ./"+subFile
+	file4 = "#!/bin/bash\nACCT=QMCPACK\n\n"
+	file4 = file4+ "TIME=1:00:00\nNODES=1\n"
+	file4 =file4 + "OUTPUT="+rootname+"_conversion\n\n"
+	subFile4 = "conversion_"+rootname+".sh"
+	file4 =file4+ "qsub -A $ACCT -t $TIME -n $NODES -O $OUTPUT ./"+subFile4
+	submissionFile4 = path+"/"+"submission4_"+rootname+".sh"
+	with open(submissionFile4,"w") as fileOut:
+		fileOut.write(file4)
 
+        pyfile4 = "#!/bin/bash\n"
+	pyfile4 = pyfile4 + "source /soft/applications/quantum_package/quantum_package.rc\n\n"
+	pyfile4 = pyfile4 +"./"+pythonCalculationFilename4
+	fileoutName = path +"/"+subFile4
+	with open(fileoutName,"w") as fileOut:
+		fileOut.write(pyfile4)
+    
 
-	
-	submissionFile = path+"/"+"masterSubmission_"+rootname+".sh"
-	with open(submissionFile,"w") as fileOut:
-		fileOut.write(file)
 
     def generate_QP_SCFCalculation():
 	##############################################
@@ -214,16 +309,15 @@ if __name__ == '__main__':
 	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
         fileMain = "### first create the ezfio file\n"
 	if pp:
-	     fileMain =fileMain+ "os.system(\"create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -p "+str(pp)+" -o " +ezfio_filename+"\")\n"
+	     fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -p "+str(pp)+" -o " +ezfio_filename+"\")\n"
 	else:
-             fileMain =fileMain+ "os.system(\"create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
+             fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
 	fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
-        fileMain = fileMain+ "#Setup calculation for running SCF and ao to mo transformation"
-	fileMain = fileMain +"ezfio.set_determinants_n_det_max(1)\n"
-	fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_ao_integrals(\"Write\")\n"
-        fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_mo_integrals(\"Write\")\n"
-	fileMain = fileMain +"ezfio.set_integrals_monoelec_disk_access_ao_one_integrals(\"Write\")\n"
-	fileMain = fileMain +"ezfio.set_integrals_monoelec_disk_access_mo_one_integrals(\"Write\")\n"
+        fileMain = fileMain+ "#Setup calculation for running SCF and ao to mo transformation\n"
+	#fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_ao_integrals(\"Write\")\n"
+        #fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_mo_integrals(\"Write\")\n"
+	#fileMain = fileMain +"ezfio.set_integrals_monoelec_disk_access_ao_one_integrals(\"Write\")\n"
+	#fileMain = fileMain +"ezfio.set_integrals_monoelec_disk_access_mo_one_integrals(\"Write\")\n"
 
        	fileMain = fileMain +"### Now run the SCF calculation\n"
 	fileMain = fileMain +"if mpirun.lower()[0]==\"t\":\n"
@@ -231,7 +325,7 @@ if __name__ == '__main__':
 	fileMain = fileMain +"else:\n"
        	fileMain = fileMain +"   os.system(\"qp_run SCF "+ezfio_filename+"/ > "+SCF_out_filename+"\")\n"
 
-	fileoutName =path+"/"+ "setup_and_runscf_"+rootname+".py"
+	fileoutName = path + "/" +pythonCalculationFilename1
 	with open(fileoutName,"w") as fileout:
        	    fileout.write("%s" %fileHeader)
 	    fileout.write("%s" %fileMain)
@@ -246,22 +340,20 @@ if __name__ == '__main__':
         
         fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
         fileHeader=fileHeader + "#THIS FILE CREATES THE EZFIO, RUNS THE SCF CALCULATION, AND THEN RUNS THE FCI CALCULATION \n \n"
-        fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio \n\n"
+        fileHeader=fileHeader + "import os \nimport sys \n"
+        #fileHeader=fileHeader + "from ezfio import ezfio \n\n"
         
 	fileMain=""
-        fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
+        #fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
 
-        fileMain = fileMain +"### convert the ao to mo"
-        ## ONCE THE ITERATIVE IS ESTABLISHED IN QUANTUM PACKAGE UNCOMMENT THIS LINE
-        #fileMain = fileMain +"ezfio.set_full_ci_zmq_iterative(True)\n"
-        fileMain = fileMain +"os.system(\"qp_run fci_zmq "+ezfio_filename+"/ > "+A2M_out_filename+"\")\n"
+        fileMain = fileMain +"### convert the ao to mo\n"
+	#fileMain = fileMain +"ezfio.set_determinants_n_det_max(1)\n"
         fileMain = fileMain +"### Now save the 1 det system for qmcpack\n"
         fileMain = fileMain +"os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+scf_dumpname+"\")\n"
-        fileMain = fileMain +"ezfio.set_determinants_n_det_max("+str(NDET)+")\n"
-        fileMain = fileMain +"ezfio.set_determinants_read_wf(True)\n"
-        
-        fileoutName =path+"/"+ "ao_2_mo_"+rootname+".py"
-        with open(fileoutName,"w") as fileout:
+        #fileMain = fileMain +"os.system(\"qp_run fci_zmq "+ezfio_filename+"/ > "+A2M_out_filename+"\")\n"
+          
+       	fileoutName = path + "/" +pythonCalculationFilename2
+	with open(fileoutName,"w") as fileout:
     	   fileout.write("%s" %fileHeader)
     	   fileout.write("%s" %fileMain)
 
@@ -274,19 +366,21 @@ if __name__ == '__main__':
 	### BEGIN FILECREATION
 	fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
 	fileHeader=fileHeader + "#THIS FILE RUNS THE FCI CALCULATION \n \n"
-	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio \n"
+	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio\n"
 	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
 
 	fileMain=""
-	fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
+        fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
+        #fileMain = fileMain +"ezfio.set_determinants_read_wf(True)\n"
+        fileMain = fileMain +"ezfio.set_determinants_n_det_max("+str(NDET)+")\n"
 
-	fileMain = fileMain +"### run the cipsi calculation"
+	fileMain = fileMain +"### run the cipsi calculation\n"
 	fileMain = fileMain +"if mpirun.lower()[0]==\"t\":\n"
 	fileMain = fileMain +"   os.system(\"./qp-mpirun.sh fci_zmq "+ezfio_filename+"/ > "+FCI_out_filename+"\")\n"
 	fileMain = fileMain +"else:\n"
 	fileMain = fileMain +"   os.system(\"qp_run fci_zmq "+ezfio_filename+"/ > "+FCI_out_filename+"\")\n"
 
-	fileoutName =path+"/"+ "run_fci_"+rootname+".py"
+       	fileoutName = path + "/" +pythonCalculationFilename3
 	with open(fileoutName,"w") as fileout:
 		fileout.write("%s" %fileHeader)
 		fileout.write("%s" %fileMain)
@@ -300,7 +394,6 @@ if __name__ == '__main__':
 	fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
 	fileHeader=fileHeader + "#THIS FILE CONVERTS FOR QMCPACK INPUT \n \n"
 	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio \n"
-	fileHeader=fileHeader + "convertDir=/soft/applications/qmcpack/github/build_Intel_real/bin\n"
 
 	BINDIR="/soft/applications/qmcpack/github/build_Intel_real/bin"
 
@@ -309,54 +402,65 @@ if __name__ == '__main__':
 
 	fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
 	fileHeader=fileHeader + "#THIS FILE MAKES THE INPUT FILES TO QMCPACK \n \n"
-	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio \n"
+	fileHeader=fileHeader + "import os \nimport sys \n"
 
-	fileMain ="os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+FCI_dump_filename+"\")\n"
-	### NO JASTROW AND 1 DET		
-	fileRoot = rootname+"_1Det_NoJastrow"
-	main = "os.system(\""+BINDIR+"/convert4qmc -QP "+SCF_dump_filename+" -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +noJ_1det_path+"/"+fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +noJ_1det_path+"/"+fileroot+".ptcl.xml\")\n"
+	fileMain ="os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+fci_dumpname+"\")\n\n"
+	main=""
 
-	### PLAIN JASTROW AND 1 DET		
-	fileRoot = rootname+"_1Det_Jastrow"
-	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+SCF_dump_filename+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_1det_path+"/"+fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_1det_path+"/"+fileroot+".ptcl.xml\")\n"
+	fileMain = fileMain + "baseDir=\""+sub_path+"\"\n"
+	if doSCF:
+	    ### NO JASTROW AND 1 DET		
+  	    main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+scf_dumpname+" -addCusp\" )\n"
+	    main = main+"os.system(\"mv sample.Gaussian-G2.xml\"+ baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".wfs.xml\")\n"
+	    main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".ptcl.xml\")\n\n"
+
+	    ### PLAIN JASTROW AND 1 DET		
+	    main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+scf_dumpname+" -add3BodyJ -addCusp\" )\n"
+	    main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +J_1det_base+"/"+J_1det_fileroot+".wfs.xml\")\n"
+	    main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +J_1det_base+"/"+J_1det_fileroot+".ptcl.xml\")\n\n"
 
 	### NO JASTROW AND MULTI-DETERMINANT
-	fileroot=rootname +"_"+str(NDET)+"_NoJastrow"
-	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+FCI_dump_filename+" -addCusp \" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +noJ_Multidet_path+"/"+fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +noJ_Multidet_path+"/"+fileroot+".ptcl.xml\")\n"
+	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+fci_dumpname+" -addCusp \" )\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +noJ_Multidet_base+"/"+noJ_Multidet_fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +noJ_Multidet_base+"/"+noJ_Multidet_fileroot+".ptcl.xml\")\n\n"
 
 	### PLAIN JASTROW AND MULTI-DETERMINANT
-	fileroot=rootname +"_"+str(NDET)+"_Jastrow"
-	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+FCI_dump_filename+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_Multidet_path+"/"+fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_Multidet_path+"/"+fileroot+".ptcl.xml\")\n"
+	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+fci_dumpname+" -add3BodyJ -addCusp\" )\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +J_Multidet_base+"/"+J_Multidet_fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +J_Multidet_base+"/"+J_Multidet_fileroot+".ptcl.xml\")\n\n"
 
 	### OPTIMIZED JASTROW AND MULTI-DETERMINANT
-	fileroot = rootname +"_"+str(NDET)+"_ReOptJastrow"
-	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+FCI_dump_filename+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml " +J_Multidet_reopt_path+"/"+fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml " +J_Multidet_reopt_path+"/"+fileroot+".ptcl.xml\")\n"
+	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+fci_dumpname+" -add3BodyJ -addCusp\" )\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +J_Multidet_reopt_base+"/"+J_Multidet_reopt_fileroot+".wfs.xml\")\n"
+	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +J_Multidet_reopt_base+"/"+J_Multidet_reopt_fileroot+".ptcl.xml\")\n\n"
 	
-
-        fileoutName = path + "/"+ "conversion_" +rootname+".py"
+       	fileoutName = path + "/" +pythonCalculationFilename4
 	with open(fileoutName,"w") as fileout:
 		fileout.write("%s" %fileHeader)
 		fileout.write("%s" %fileMain)
+		fileout.write("%s" %main)
 
-    def buildQMCDirectories(directory,fileroot):
-	main =""
-	main = main + "os.system(\"mkdir " +directory+"\")\n"
-	main = main + "os.system(\"mkdir " + directory+"/CuspCorrection\")\n"
-	generateCuspCorrection(directory,fileroot)
-	main = main + "os.system(\"mkdir " + directory+"/Optimization\")\n"
-	generateOptimization(directory,fileroot)
-	main = main + "os.system(\"mkdir " + directory+"/DMC\")\n"
-	generateDMC(directory,fileroot)
+    def generate_mpirunFile():
 
+	fileInput = "#!/bin/bash\n"
+	fileInput = fileInput + "source /soft/applications/quantum_package/quantum_package.rc\n"
+	fileInput = fileInput +"RANKS_PER_NODE=1\n"
+	fileInput = fileInput +"NODES=`cat $COBALT_NODEFILE | wc -l`\n"
+	fileInput = fileInput +"PROCS=$(($NODES * $RANKS_PER_NODE))\n"
+	fileInput = fileInput +"QPIN=$2\n"
+	fileInput = fileInput +"QPTYPE0=$1\n"
+	fileInput = fileInput +"QPTYPE1=\"-slave qp_ao_ints\"\n"
+	fileInput = fileInput +"QPBIN=qp_run\n\n"
+	fileInput = fileInput +"MPIRUN=mpirun\n"
+	fileInput = fileInput +"MPIFLAGS=\"-f $COBALT_NODEFILE -n $PROCS\"\n\n\n"
+	fileInput = fileInput +"let SLAVES=${PROCS}-1\n"
+	fileInput = fileInput +"$MPIRUN -F $COBALT_NODEFILE -n 1 $QPBIN $QPTYPE0 $QPIN &\n"
+	fileInput = fileInput +"sleep 10\n"
+	fileInput = fileInput +"$MPIRUN -f $COBALT_NODEFILE -n $SLAVES $QPBIN $QPTYPE1 $QPIN\n"
+	fileInput = fileInput +"wait\n"
 
+	fileoutname = path + "/qp-mpirun.sh"
+	with open(fileoutname,"w") as fileout:
+		fileout.write(fileInput)
+	
     generateMasterFile()

@@ -13,6 +13,9 @@ Usage:
 			[--write_path=<path_name>] 
 			[--pseudopotential=<name_of_pp>]
 			[--n_det=<max_number_of_determinants>]
+			[-c=<charge_of_atom>]
+			[-d=<dummy_atoms>]
+			[-cart=<transform_to_cartesian>]
 
 Example of use:
 	./generate_input.py dmc --ele=C2 --basis="cc-pvdz" --geo=Experiment --pseudopotential=True
@@ -44,12 +47,23 @@ if __name__ == '__main__':
 	basis   = arguments["--basis"]
         mainDirectory = element + "_"+geometry +"_"+basis
 
+    otherArguments = ""
+    if arguments["--c"]:
+	charge = arguments["--c"]
+	otherArguments = otherArguments + " -c " +charge + " "
+    if arguments["--d"]:
+	dummy_atom= arguments["--d"]
+	otherArguments = otherArguments + " -d " +dummy_atom + " "
+    if arguments["--cart"]:
+	otherArguments = otherArguments + " -cart "
+
+
     if arguments["--pseudopotential"]:
 	pp = arguments["--pseudopotential"]
-	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t pp: %s" %(element, basis, geometry,pp)
+	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t pp: %s \n \t Other args: %s" %(element, basis, geometry,pp,otherArguments)
     else:
 	pp=False
-	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t No pp" %(element, basis, geometry)
+	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t No pp\n \t Other args: %s" %(element, basis, geometry,otherArguments)
 
 
     #######################################################################
@@ -168,7 +182,7 @@ if __name__ == '__main__':
         main_filepath_args = [path,rootname,sub_path,ezfio_filename]
         filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
         filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
-        parameters_args    = [inputFile, NDET,basis, m,pp]
+        parameters_args    = [inputFile, NDET,basis, m,pp,otherArguments]
 
         myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
         myFile.generateMasterFile()

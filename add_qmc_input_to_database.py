@@ -58,6 +58,33 @@ if __name__ == '__main__':
         id_ = get_mol_id(name)
         print name, id_,
 
+	############################################################
+	############################################################
+	############################################################
+	############################################################
+	############################################################
+	############################################################
+
+	''' Need :
+
+		N_det = (integer)
+		Jastrow = (true | false)
+		CuspCorrection = (true | false)
+		Version = (version number)
+		Optimization_Block =???
+		DMC_block = ???
+		basis
+		geometry
+		comments
+		citation
+		seed
+		element
+		initial_WF_generation_method
+		
+	
+		'''
+	
+
         add_qmc_input_metadata()
                        
 

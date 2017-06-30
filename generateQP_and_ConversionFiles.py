@@ -11,14 +11,14 @@ class generateQP_and_ConversionFiles:
 	#self.path,self.rootname,self.sub_path,self.ezfio_filename = main_filepath_args
         #self.scf_dumpname,self.SCF_out_filename,self.fci_dumpname,self.FCI_out_filename,self.A2M_out_filename=filename1_args     
         #self.pythonCalculationFilename1,self.pythonCalculationFilename2,self.pythonCalculationFilename3,self.pythonCalculationFilename4=filename2_args 
-        #self.inputFile, self.NDET,self.basis, self.m,self.pp=parameters_args
+        #self.inputFile, self.NDET,self.basis, self.m,self.pp,self.otherArguments=parameters_args
 
 
 	### Within the defs use the following declarations
    	#####path,rootname,sub_path,ezfio_filename = self.main_filepath_args
         #####scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
         #####pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4=self.filename2_args 
-        #####inputFile, NDET,basis, m,pp=self.parameters_args
+        #####inputFile, NDET,basis, m,pp,otherArguments=self.parameters_args
 
 
 
@@ -44,7 +44,7 @@ class generateQP_and_ConversionFiles:
     def generateMasterFile(self):
    	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
         pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4=self.filename2_args 
-        inputFile, NDET,basis, m,pp=self.parameters_args
+        inputFile, NDET,basis, m,pp,otherArguments=self.parameters_args
 
  
         doSCF=True
@@ -191,7 +191,7 @@ class generateQP_and_ConversionFiles:
    	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
         scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
         pythonCalculationFilename1=self.filename2_args[0]
-        inputFile, NDET,basis, m,pp=self.parameters_args
+        inputFile, NDET,basis, m,pp,otherArguments=self.parameters_args
 	##############################################
 	#### GENERATE THE CALCULATION FILE THAT WILL 
         #### BE CALLED IN THE SUBMISSION FILE
@@ -202,9 +202,9 @@ class generateQP_and_ConversionFiles:
 	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
         fileMain = "### first create the ezfio file\n"
 	if pp:
-	     fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -p "+str(pp)+" -o " +ezfio_filename+"\")\n"
+	     fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -p "+str(pp)+otherArguments+" -o " +ezfio_filename+"\")\n"
 	else:
-             fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -o " +ezfio_filename+"\")\n"
+             fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+otherArguments+" -o " +ezfio_filename+"\")\n"
 	fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
         fileMain = fileMain+ "#Setup calculation for running SCF and ao to mo transformation\n"
 	#fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_ao_integrals(\"Write\")\n"

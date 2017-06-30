@@ -204,8 +204,6 @@ if __name__ == '__main__':
 		generate_fciDump_conversions_qmcBlocks("dmc")
 	"""
 
-	generate_mpirunFile()
-
 	### now output them into a master script
 
 	##########################################

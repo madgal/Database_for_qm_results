@@ -52,108 +52,124 @@ if __name__ == '__main__':
 	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t No pp" %(element, basis, geometry)
 
 
-    ### Now grab/create the xyz file
-    from collections import namedtuple
-    
-    get_general = namedtuple('get_general', ['get','ext'])
-    g = get_general(get=get_xyz,ext='.xyz')
+    #######################################################################
+    #### CHECK IF THERE IS INPUT/ENERGIES FOR THIS RUN IN THE DATABASE ####
+    #######################################################################
 
-    to_print=[]
-    try:
-        xyz = g.get(geometry,element)
-    except KeyError:
-	print "Error: Please generate an xyz file and update the database"
-        pass
+    if qmc_input_exists():
+    	grabFiles=True
     else:
-        to_print.append(xyz)
-    if len(to_print)>1:
-	print "Warning: There are multiple xyz files being generated"
-	print "         To fix this try adding a specific geometry"
+	grabFiles =False
 
-    str_ = "\n\n".join(to_print)
-    
-    if arguments["--write_path"]:
-         path = arguments["--write_path"]
-	 path = path +"/"+mainDirectory
-	 if not os.path.exists(path):
- 	     os.mkdir(path)
-         inputFile= "_".join([element, geometry])
-	 inputFile=inputFile+ g.ext
-         filepath = path +"/"+ inputFile
-	 #print filepath
+
+    if grabFiles:
+	### get the files from the database
+	get_qmc_input_metadata()
+
     else:
-         #path = "_".join([".".join(l_geo), ".".join(l_ele)])
-	 path="/tmp/"+mainDirectory
-	 if not os.path.exists(path):
-	     os.mkdir(path)
-         inputFile= "_".join([element, geometry])
-	 inputFile=inputFile+ g.ext
-         filepath = path + inputFile
-    with open(filepath, 'w') as f:
-         f.write(str_ + "\n")
-    print "Files will be placed in  %s" %path
+        ### Now grab/create the xyz file
+        from collections import namedtuple
+        
+        get_general = namedtuple('get_general', ['get','ext'])
+        g = get_general(get=get_xyz,ext='.xyz')
 
-    if arguments["--submit_path"]:
-	sub_path = arguments["--submit_path"]
-    else:
-        sub_path=path
+        to_print=[]
+        try:
+            xyz = g.get(geometry,element)
+        except KeyError:
+    	print "Error: Please generate an xyz file and update the database"
+            pass
+        else:
+            to_print.append(xyz)
+        if len(to_print)>1:
+    	print "Warning: There are multiple xyz files being generated"
+    	print "         To fix this try adding a specific geometry"
 
+        str_ = "\n\n".join(to_print)
+        
+        if arguments["--write_path"]:
+             path = arguments["--write_path"]
+    	 path = path +"/"+mainDirectory
+    	 if not os.path.exists(path):
+     	     os.mkdir(path)
+             inputFile= "_".join([element, geometry])
+    	 inputFile=inputFile+ g.ext
+             filepath = path +"/"+ inputFile
+    	 #print filepath
+        else:
+             #path = "_".join([".".join(l_geo), ".".join(l_ele)])
+    	 path="/tmp/"+mainDirectory
+    	 if not os.path.exists(path):
+    	     os.mkdir(path)
+             inputFile= "_".join([element, geometry])
+    	 inputFile=inputFile+ g.ext
+             filepath = path + inputFile
+        with open(filepath, 'w') as f:
+             f.write(str_ + "\n")
+        print "Files will be placed in  %s" %path
 
-
-    ### Now obtain the multiplicity etc... 
-    try:
-        m = dict_raw()[element]["multiplicity"]
-    except KeyError:
-        pass
-    else:
-        print m
-
-    if arguments["--n_det"]:
-	NDET=arguments["--n_det"]
-    else:
-	#### otherwise set it to the quantum package default
-	NDET=10000
-
-
-
-
-
-    #####################################################################
-    ### Now define the variables that will be needed in all of the calls
-    #####################################################################
-    rootname = str(element)+"_"+geometry+"_"+str(basis)
-    rootname = rootname.replace(" ","")
-
-    scf_rootname= rootname + "_1"
-    scf_rootname = scf_rootname.replace(" ","")
-    scf_dumpname = scf_rootname + ".dump"
-    #SCF_out_filename =path + "/"+ rootname + ".SCF.out"
-    SCF_out_filename = rootname + ".SCF.out"
-
-    fci_rootname= rootname+ "_"+ str(NDET)
-    fci_rootname = fci_rootname.replace(" ","")
-    fci_dumpname = fci_rootname + ".dump"
-    #FCI_out_filename =path + "/"+ rootname + ".FCI.out"
-    FCI_out_filename = fci_rootname + ".FCI.out"
-
-    #ezfio_filename = path + "/"+rootname + ".ezfio"
-    ezfio_filename = rootname + ".ezfio"
-    #inputFile = filepath
-    #qmc_rootname = rootname
-    #A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
-    A2M_out_filename =rootname + ".ao2mo.out"
-
-    pythonCalculationFilename1 ="setup_and_runscf_"+rootname+".py"
-    pythonCalculationFilename2 ="ao_2_mo_"+rootname+".py"
-    pythonCalculationFilename3 ="run_fci_"+rootname+".py"
-    pythonCalculationFilename4= "conversion_" +rootname+".py"
+        if arguments["--submit_path"]:
+    	sub_path = arguments["--submit_path"]
+        else:
+            sub_path=path
 
 
-    ### generate all the files
-    main_filepath_args = [path,rootname,sub_path,ezfio_filename]
-    filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
-    filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
-    parameters_args    = [inputFile, NDET,basis, m,pp]
 
-    myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
-    myFile.generateMasterFile()
+        ### Now obtain the multiplicity etc... 
+        try:
+            m = dict_raw()[element]["multiplicity"]
+        except KeyError:
+            pass
+        else:
+            print m
+
+        if arguments["--n_det"]:
+    	NDET=arguments["--n_det"]
+        else:
+    	#### otherwise set it to the quantum package default
+    	NDET=10000
+
+
+
+
+
+        #####################################################################
+        ### Now define the variables that will be needed in all of the calls
+        #####################################################################
+        rootname = str(element)+"_"+geometry+"_"+str(basis)
+        rootname = rootname.replace(" ","")
+
+        scf_rootname= rootname + "_1"
+        scf_rootname = scf_rootname.replace(" ","")
+        scf_dumpname = scf_rootname + ".dump"
+        #SCF_out_filename =path + "/"+ rootname + ".SCF.out"
+        SCF_out_filename = rootname + ".SCF.out"
+
+        fci_rootname= rootname+ "_"+ str(NDET)
+        fci_rootname = fci_rootname.replace(" ","")
+        fci_dumpname = fci_rootname + ".dump"
+        #FCI_out_filename =path + "/"+ rootname + ".FCI.out"
+        FCI_out_filename = fci_rootname + ".FCI.out"
+
+        #ezfio_filename = path + "/"+rootname + ".ezfio"
+        ezfio_filename = rootname + ".ezfio"
+        #inputFile = filepath
+        #qmc_rootname = rootname
+        #A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
+        A2M_out_filename =rootname + ".ao2mo.out"
+
+        pythonCalculationFilename1 ="setup_and_runscf_"+rootname+".py"
+        pythonCalculationFilename2 ="ao_2_mo_"+rootname+".py"
+        pythonCalculationFilename3 ="run_fci_"+rootname+".py"
+        pythonCalculationFilename4= "conversion_" +rootname+".py"
+
+
+        ### generate all the files
+        main_filepath_args = [path,rootname,sub_path,ezfio_filename]
+        filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
+        filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
+        parameters_args    = [inputFile, NDET,basis, m,pp]
+
+        myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
+        myFile.generateMasterFile()
+	add_qmc_input_metadata()

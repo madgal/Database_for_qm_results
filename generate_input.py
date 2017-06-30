@@ -76,7 +76,7 @@ if __name__ == '__main__':
          path = arguments["--write_path"]
 	 path = path +"/"+mainDirectory
 	 if not os.path.exists(path):
- 	     os.system("mkdir "+path)
+ 	     os.mkdir(path)
          inputFile= "_".join([element, geometry])
 	 inputFile=inputFile+ g.ext
          filepath = path +"/"+ inputFile
@@ -85,7 +85,7 @@ if __name__ == '__main__':
          #path = "_".join([".".join(l_geo), ".".join(l_ele)])
 	 path="/tmp/"+mainDirectory
 	 if not os.path.exists(path):
-	     os.system("mkdir "+path)
+	     os.mkdir(path)
          inputFile= "_".join([element, geometry])
 	 inputFile=inputFile+ g.ext
          filepath = path + inputFile
@@ -118,15 +118,15 @@ if __name__ == '__main__':
     def buildQMCDirectories(baseDir,fileroot):
 	directory = path + "/"+ baseDir
 	if not(os.path.isdir(directory)):
-	    os.system("mkdir " +directory)
+	    os.mkdir(directory)
 	if not(os.path.isdir(directory+"/CuspCorrection")):
-	    os.system("mkdir " + directory+"/CuspCorrection")
+	    os.mkdir(directory+"/CuspCorrection")
 	generateCuspCorrection(directory,fileroot,sub_path,baseDir)
 	if not(os.path.isdir(directory+"/Optimization")):
-    	    os.system("mkdir " + directory+"/Optimization")
+    	    os.mkdir(directory+"/Optimization")
 	generateOptimization(directory,fileroot,sub_path,baseDir)
 	if not(os.path.isdir(directory+"/DMC")):
-	    os.system("mkdir " + directory+"/DMC")
+	    os.mkdir(directory+"/DMC")
 	generateDMC(directory,fileroot,sub_path,baseDir)
 
 
@@ -409,28 +409,28 @@ if __name__ == '__main__':
 	if doSCF:
 	    ### NO JASTROW AND 1 DET		
   	    main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+scf_dumpname+" -addCusp\" )\n"
-	    main = main+"os.system(\"mv sample.Gaussian-G2.xml\"+ baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".wfs.xml\")\n"
-	    main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".ptcl.xml\")\n\n"
+	    main = main+"os.rename(\"sample.Gaussian-G2.xml\",baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".wfs.xml\")\n"
+	    main = main+"os.rename(\"sample.Gaussian-G2.ptcl.xml \", baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".ptcl.xml\")\n\n"
 
 	    ### PLAIN JASTROW AND 1 DET		
 	    main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+scf_dumpname+" -add3BodyJ -addCusp\" )\n"
-	    main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +J_1det_base+"/"+J_1det_fileroot+".wfs.xml\")\n"
-	    main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +J_1det_base+"/"+J_1det_fileroot+".ptcl.xml\")\n\n"
+	    main = main+"os.rename(\"sample.Gaussian-G2.xml \", baseDir+\"/" +J_1det_base+"/"+J_1det_fileroot+".wfs.xml\")\n"
+	    main = main+"os.rename(\"sample.Gaussian-G2.ptcl.xml \", baseDir+\"/" +J_1det_base+"/"+J_1det_fileroot+".ptcl.xml\")\n\n"
 
 	### NO JASTROW AND MULTI-DETERMINANT
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+fci_dumpname+" -addCusp \" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +noJ_Multidet_base+"/"+noJ_Multidet_fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +noJ_Multidet_base+"/"+noJ_Multidet_fileroot+".ptcl.xml\")\n\n"
+	main = main+"os.rename(\"sample.Gaussian-G2.xml \", baseDir+\"/" +noJ_Multidet_base+"/"+noJ_Multidet_fileroot+".wfs.xml\")\n"
+	main = main+"os.rename(\"sample.Gaussian-G2.ptcl.xml \", baseDir+\"/" +noJ_Multidet_base+"/"+noJ_Multidet_fileroot+".ptcl.xml\")\n\n"
 
 	### PLAIN JASTROW AND MULTI-DETERMINANT
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+fci_dumpname+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +J_Multidet_base+"/"+J_Multidet_fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +J_Multidet_base+"/"+J_Multidet_fileroot+".ptcl.xml\")\n\n"
+	main = main+"os.rename(\"sample.Gaussian-G2.xml \", baseDir+\"/" +J_Multidet_base+"/"+J_Multidet_fileroot+".wfs.xml\")\n"
+	main = main+"os.rename(\"sample.Gaussian-G2.ptcl.xml \", baseDir+\"/" +J_Multidet_base+"/"+J_Multidet_fileroot+".ptcl.xml\")\n\n"
 
 	### OPTIMIZED JASTROW AND MULTI-DETERMINANT
 	main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+fci_dumpname+" -add3BodyJ -addCusp\" )\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.xml \"+ baseDir+\"/" +J_Multidet_reopt_base+"/"+J_Multidet_reopt_fileroot+".wfs.xml\")\n"
-	main = main+"os.system(\"mv sample.Gaussian-G2.ptcl.xml \"+ baseDir+\"/" +J_Multidet_reopt_base+"/"+J_Multidet_reopt_fileroot+".ptcl.xml\")\n\n"
+	main = main+"os.rename(\"sample.Gaussian-G2.xml \", baseDir+\"/" +J_Multidet_reopt_base+"/"+J_Multidet_reopt_fileroot+".wfs.xml\")\n"
+	main = main+"os.rename(\"sample.Gaussian-G2.ptcl.xml \", baseDir+\"/" +J_Multidet_reopt_base+"/"+J_Multidet_reopt_fileroot+".ptcl.xml\")\n\n"
 	
        	fileoutName = path + "/" +pythonCalculationFilename4
 	with open(fileoutName,"w") as fileout:

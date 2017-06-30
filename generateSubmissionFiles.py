@@ -33,34 +33,18 @@ def generateCuspCorrection(directory,fileroot,sub_path,baseName):
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
 
-    ##################################################################
-    ### cusp.sh
-    ##################################################################
- 
+
+    #### cusp.sh
     main = "#!/bin/bash\n\n"
-    main = main + "BINDIR=/soft/applications/qmcpack/github/build_Intel_real/bin\n"
-    main = main + "FILEIN=/gpfs/mira-fs0/projects/PSFMat/mgalbraith/Equilibrium/DZ/120000Det_Jastrow/CuspCorrection/Cusp.xml\n\n"
-    main = main + "$BINDIR/qmcpack $FILEIN \n"
+
+    main = main +"BINDIR=/soft/applications/qmcpack/github/build_intel_real/bin\n"
+    main = main +"FILEIN="+sub_path+"/"+baseName+"/CuspCorrection/cusp.xml\n"
+    main = main +"$BINDIR/qmcpack $FILEIN \n"
 
     thisfile = directory +"/CuspCorrection/cusp.sh"
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
 
-    ##################################################################
-    ### cusp_submission.sh
-    ##################################################################
- 
-    main = "#!/bin/bash\n"
-    main = main + "NODES=1\n"
-    main = main + "TIME=30\n"
-    main = main + "ACCT=QMCPACK\n"
-    main = main + "EMAIL=galbraithm@duq.edu\n"
-    main = main + "OUTPUT=cusp_calc\n"
-    main = main + "qsub -A $ACCT -t $TIME -n $NODES -M $EMAIL  -O $OUTPUT ./cusp.sh\n"
-
-    thisfile = directory +"/CuspCorrection/cusp_submission.sh"
-    with open(thisfile,"w") as fileOut:
-	fileOut.write("%s" %main)
 
 def generateOptimization(directory,fileroot,sub_path,baseName):
 
@@ -131,30 +115,6 @@ def generateOptimization(directory,fileroot,sub_path,baseName):
     thisfile = directory +"/Optimization/Opt.xml"
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
-    ### bgq.sh
-    main=""
-    main = main+"#!/bin/bash\n"
-    main = main+"queue=default\n"
-    main = main+"acct=PSFMat\n"
-    main = main+"time=60\n"
-    main = main+"EMAIL=\"galbraithm@duq.edu\"\n"
-    main = main+"nodes=128\n"
-    main = main+"nthreads=32\n"
-    main = main+"mode=c1\n"
-    main = main+"bin=qmcpack\n"
-    main = main+"bindir=/soft/applications/qmcpack/current/build_XL_real/bin\n"
-    main = main+"intemplate=Opt-HF.xml\n"
-    main = main+"title=bgq.Opt-QP-HF-${mode}_p${nodes}x${nthreads}.`date +\"%m-%d-%y_%H%M\"`\n"
-    main = main+"qmcin=$intemplate\n"
-    main = main+"qmcout=${title}\n"
-    main = main+"qsub -A $acct -M $EMAIL -q $queue -n $nodes -t $time -O ${qmcout} --mode $mode --env BG_SHAREDMEMSIZE=32:OMP_NUM_THREADS=${nthreads} $bindir/$bin $qmcin\n"
-
-    thisfile = directory +"/Optimization/bgq.sh"
-    with open(thisfile,"w") as fileOut:
-	fileOut.write("%s" %main)
-
-
-
 
 def generateDMC(directory,fileroot,sub_path,baseName):
 
@@ -197,28 +157,3 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     thisfile = directory +"/DMC/DMC.xml"
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
-
-
-    ### bgq.sh
-    main=""
-    main = main+"#!/bin/bash\n"
-    main = main+"queue=default\n"
-    main = main+"acct=PSFMat\n"
-    main = main+"time=60\n"
-    main = main+"EMAIL=\"galbraithm@duq.edu\"\n"
-    main = main+"nodes=128\n"
-    main = main+"nthreads=32\n"
-    main = main+"mode=c1\n"
-    main = main+"bin=qmcpack\n"
-    main = main+"bindir=/soft/applications/qmcpack/current/build_XL_real/bin\n"
-    main = main+"intemplate=DMC-HF.xml\n"
-    main = main+"title=bgq.DMC-QP-HF-${mode}_p${nodes}x${nthreads}.`date +\"%m-%d-%y_%H%M\"`\n"
-    main = main+"qmcin=$intemplate\n"
-    main = main+"qmcout=${title}\n"
-    main = main+"qsub -A $acct -M $EMAIL -q $queue -n $nodes -t $time -O ${qmcout} --mode $mode --env BG_SHAREDMEMSIZE=32:OMP_NUM_THREADS=${nthreads} $bindir/$bin $qmcin\n"
-
-    thisfile = directory +"/DMC/bgq.sh"
-    with open(thisfile,"w") as fileOut:
-	fileOut.write("%s" %main)
-
-

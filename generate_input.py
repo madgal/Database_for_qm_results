@@ -440,27 +440,5 @@ if __name__ == '__main__':
 		fileout.write("%s" %fileMain)
 		fileout.write("%s" %main)
 
-    def generate_mpirunFile():
 
-	fileInput = "#!/bin/bash\n"
-	fileInput = fileInput + "source /soft/applications/quantum_package/quantum_package.rc\n"
-	fileInput = fileInput +"RANKS_PER_NODE=1\n"
-	fileInput = fileInput +"NODES=`cat $COBALT_NODEFILE | wc -l`\n"
-	fileInput = fileInput +"PROCS=$(($NODES * $RANKS_PER_NODE))\n"
-	fileInput = fileInput +"QPIN=$2\n"
-	fileInput = fileInput +"QPTYPE0=$1\n"
-	fileInput = fileInput +"QPTYPE1=\"-slave qp_ao_ints\"\n"
-	fileInput = fileInput +"QPBIN=qp_run\n\n"
-	fileInput = fileInput +"MPIRUN=mpirun\n"
-	fileInput = fileInput +"MPIFLAGS=\"-f $COBALT_NODEFILE -n $PROCS\"\n\n\n"
-	fileInput = fileInput +"let SLAVES=${PROCS}-1\n"
-	fileInput = fileInput +"$MPIRUN -F $COBALT_NODEFILE -n 1 $QPBIN $QPTYPE0 $QPIN &\n"
-	fileInput = fileInput +"sleep 10\n"
-	fileInput = fileInput +"$MPIRUN -f $COBALT_NODEFILE -n $SLAVES $QPBIN $QPTYPE1 $QPIN\n"
-	fileInput = fileInput +"wait\n"
-
-	fileoutname = path + "/qp-mpirun.sh"
-	with open(fileoutname,"w") as fileout:
-		fileout.write(fileInput)
-	
     generateMasterFile()

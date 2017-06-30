@@ -21,12 +21,12 @@ Example of use:
 version="0.0.1"
 import os
 import sys
+from generateQP_and_ConversionFiles import generateQP_and_ConversionFiles
   
 try:
     from src.docopt import docopt
     from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
     from src.SQL_util import get_xyz, get_g09
-    import generateQP_and_ConversionFiles
 except:
     print "File in misc is corupted. Git reset may fix the issues"
     sys.exit(1)
@@ -139,7 +139,7 @@ if __name__ == '__main__':
     #ezfio_filename = path + "/"+rootname + ".ezfio"
     ezfio_filename = rootname + ".ezfio"
     #inputFile = filepath
-    qmc_rootname = rootname
+    #qmc_rootname = rootname
     #A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
     A2M_out_filename =rootname + ".ao2mo.out"
 
@@ -150,10 +150,10 @@ if __name__ == '__main__':
 
 
     ### generate all the files
-    arguments = [path,rootname,NDET,scf_rootname,scf_dumpname,SCF_out_filename,fci_rootname,fci_dumpname,FCI_out_filename, 
-                    ezfio_filename,qmc_rootname,A2M_out_filename,pythonCalculationFilename1,pythonCalculationFilename2,
-                    pythonCalculationFilename3,pythonCalculationFilename4]
+    main_filepath_args = [path,rootname,sub_path,ezfio_filename]
+    filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
+    filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
+    parameters_args    = [inputFile, NDET,basis, m,pp]
 
-
-    myFile = generateQP_and_ConversionFiles(arguments)
+    myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
     myFile.generateMasterFile()

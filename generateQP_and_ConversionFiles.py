@@ -1,12 +1,32 @@
-class generateQP_and_ConversionFiles(arguments):     
-    from generateQMCFiles import *
-    import os
-    def __init__():
+import os
+from generateQMCFiles import *
+class generateQP_and_ConversionFiles:     
+    def __init__(self,main_filepath_args,filename1_args,filename2_args,parameters_args):
+
+        self.main_filepath_args=main_filepath_args
+	self.filename1_args=filename1_args
+	self.filename2_args =filename2_args
+	self.parameters_args=parameters_args
+
+	#self.path,self.rootname,self.sub_path,self.ezfio_filename = main_filepath_args
+        #self.scf_dumpname,self.SCF_out_filename,self.fci_dumpname,self.FCI_out_filename,self.A2M_out_filename=filename1_args     
+        #self.pythonCalculationFilename1,self.pythonCalculationFilename2,self.pythonCalculationFilename3,self.pythonCalculationFilename4=filename2_args 
+        #self.inputFile, self.NDET,self.basis, self.m,self.pp=parameters_args
+
+
+	### Within the defs use the following declarations
+   	#####path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+        #####scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
+        #####pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4=self.filename2_args 
+        #####inputFile, NDET,basis, m,pp=self.parameters_args
 
 
 
-    def __buildQMCDirectories__(baseDir,fileroot):
+
+    def __buildQMCDirectories__(self,baseDir,fileroot):
 	
+	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+
 	directory = path + "/"+ baseDir
 	if not(os.path.isdir(directory)):
 	    os.mkdir(directory)
@@ -21,47 +41,56 @@ class generateQP_and_ConversionFiles(arguments):
 	generateDMC(directory,fileroot,sub_path,baseDir)
 
 
-    def generateMasterFile():
-    
+    def generateMasterFile(self):
+   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+        pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4=self.filename2_args 
+        inputFile, NDET,basis, m,pp=self.parameters_args
+
+ 
         doSCF=True
         if os.path.exists(path+"/1Det_NoJastrow"):
-    	doSCF=False
+       	    doSCF=False
 
+	self.doSCF=doSCF
         if doSCF:
-    	noJ_1det_base = "1Det_noJastrow"
+    	    noJ_1det_base = "1Det_noJastrow"
             noJ_1det_path = path +"/"+noJ_1det_base
             noJ_1det_fileroot = rootname+"_"+noJ_1det_base
-            __buildQMCDirectories__(noJ_1det_base,noJ_1det_fileroot)
+            self.__buildQMCDirectories__(noJ_1det_base,noJ_1det_fileroot)
 
-    	J_1det_base = "1Det_Jastrow"
+    	    J_1det_base = "1Det_Jastrow"
             J_1det_path = path +"/"+J_1det_base
             J_1det_fileroot = rootname+"_"+ J_1det_base
-            __buildQMCDirectories__(J_1det_base,J_1det_fileroot)
+            self.__buildQMCDirectories__(J_1det_base,J_1det_fileroot)
 
         noJ_Multidet_base = str(NDET)+"Det_NoJastrow" 
         noJ_Multidet_path = path +"/"+noJ_Multidet_base
         noJ_Multidet_fileroot=rootname +"_"+noJ_Multidet_base
-        __buildQMCDirectories__(noJ_Multidet_base,noJ_Multidet_fileroot)
+        self.__buildQMCDirectories__(noJ_Multidet_base,noJ_Multidet_fileroot)
 
         J_Multidet_base =str(NDET)+"Det_Jastrow"
         J_Multidet_path = path +"/"+J_Multidet_base
         J_Multidet_fileroot=rootname +"_"+J_Multidet_base
-        __buildQMCDirectories__(J_Multidet_base,J_Multidet_fileroot)
+        self.__buildQMCDirectories__(J_Multidet_base,J_Multidet_fileroot)
 
         J_Multidet_reopt_base =str(NDET)+"Det_Jastrow_reOpt"
         J_Multidet_reopt_path = path +"/"+J_Multidet_reopt_base
         J_Multidet_reopt_fileroot = rootname +"_"+J_Multidet_reopt_base
-        __buildQMCDirectories__(J_Multidet_reopt_base,J_Multidet_reopt_fileroot)
+        self.__buildQMCDirectories__(J_Multidet_reopt_base,J_Multidet_reopt_fileroot)
+
+
+	self.qmc_files = [noJ_1det_fileroot,noJ_1det_base,J_1det_base,J_1det_fileroot,noJ_Multidet_base,noJ_Multidet_fileroot,J_Multidet_base,J_Multidet_fileroot,J_Multidet_reopt_base,J_Multidet_reopt_fileroot]
+
 		
         if doSCF:
-            generate_QP_SCFCalculation()
-            generate_scfDump_ao2moTransform()
-        generate_fciCalculation()
-	generate_fciDump_conversions_qmcBlocks()
+            self.__generate_QP_SCFCalculation__()
+            self.__generate_scfDump_ao2moTransform__()
+        self.__generate_fciCalculation__()
+	self.__generate_fciDump_conversions_qmcBlocks__()
 	"""if arguments["vmc"]: 
-		generate_fciDump_conversions_qmcBlocks("vmc")
+		self.__generate_fciDump_conversions_qmcBlocks__("vmc")
 	else:
-		generate_fciDump_conversions_qmcBlocks("dmc")
+		self._generate_fciDump_conversions_qmcBlocks__("dmc")
 	"""
 
 	os.system("cp misc/qp-mpirun.sh " +path +"/")
@@ -158,7 +187,11 @@ class generateQP_and_ConversionFiles(arguments):
     
 
 
-    def generate_QP_SCFCalculation():
+    def __generate_QP_SCFCalculation__(self):
+   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
+        pythonCalculationFilename1=self.filename2_args[0]
+        inputFile, NDET,basis, m,pp=self.parameters_args
 	##############################################
 	#### GENERATE THE CALCULATION FILE THAT WILL 
         #### BE CALLED IN THE SUBMISSION FILE
@@ -190,7 +223,10 @@ class generateQP_and_ConversionFiles(arguments):
        	    fileout.write("%s" %fileHeader)
 	    fileout.write("%s" %fileMain)
 	
-    def generate_scfDump_ao2moTransform():
+    def __generate_scfDump_ao2moTransform__(self):
+   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
+        pythonCalculationFilename2=self.filename2_args[1]
         ##############################################
         ### GENERATE THE CALCULATION FILE THAT WILL 
         ### BE CALLED IN THE SUBMISSION FILE
@@ -217,7 +253,11 @@ class generateQP_and_ConversionFiles(arguments):
     	   fileout.write("%s" %fileHeader)
     	   fileout.write("%s" %fileMain)
 
-    def generate_fciCalculation():
+    def __generate_fciCalculation__(self):
+   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
+        pythonCalculationFilename3=self.filename2_args[2]
+        inputFile, NDET,basis, m,pp=self.parameters_args
    	##############################################
 	#### GENERATE THE FCI CALCULATION FILE THAT WILL 
        	#### BE CALLED IN THE SUBMISSION FILE
@@ -245,7 +285,11 @@ class generateQP_and_ConversionFiles(arguments):
 		fileout.write("%s" %fileHeader)
 		fileout.write("%s" %fileMain)
  
-    def generate_fciDump_conversions_qmcBlocks():
+    def __generate_fciDump_conversions_qmcBlocks__(self):
+   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
+        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
+        pythonCalculationFilename4=self.filename2_args[3]
+	noJ_1det_fileroot,noJ_1det_base,J_1det_base,J_1det_fileroot,noJ_Multidet_base,noJ_Multidet_fileroot,J_Multidet_base,J_Multidet_fileroot,J_Multidet_reopt_base,J_Multidet_reopt_fileroot=self.qmc_files
         ##############################################
 	####  GENERATE CONVERSION FILE  #############
         ##############################################
@@ -268,7 +312,7 @@ class generateQP_and_ConversionFiles(arguments):
 	main=""
 
 	fileMain = fileMain + "baseDir=\""+sub_path+"\"\n"
-	if doSCF:
+	if self.doSCF:
 	    ### NO JASTROW AND 1 DET		
   	    main = main+"os.system(\""+BINDIR+"/convert4qmc -QP "+scf_dumpname+" -addCusp\" )\n"
 	    main = main+"os.rename(\"sample.Gaussian-G2.xml\",baseDir+\"/" +noJ_1det_base+"/"+noJ_1det_fileroot+".wfs.xml\")\n"

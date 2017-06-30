@@ -21,12 +21,12 @@ Example of use:
 version="0.0.1"
 import os
 import sys
-from generateQP_and_ConversionFiles import generateQP_and_ConversionFiles
   
 try:
     from src.docopt import docopt
     from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
     from src.SQL_util import get_xyz, get_g09
+    from generateQP_and_ConversionFiles import generateQP_and_ConversionFiles
 except:
     print "File in misc is corupted. Git reset may fix the issues"
     sys.exit(1)

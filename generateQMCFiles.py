@@ -1,4 +1,5 @@
 def generateCuspCorrection(directory,fileroot,sub_path,baseName):
+    import os
 
     ##################################################################
     ### Cusp.xml
@@ -45,8 +46,11 @@ def generateCuspCorrection(directory,fileroot,sub_path,baseName):
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
 
+    os.system("cp misc/cusp_submission.sh "+directory+"/CuspCorrection/")
+
 
 def generateOptimization(directory,fileroot,sub_path,baseName):
+    import os
 
     main = "<?xml version=\"1.0\"?>\n"
     main = main + "<simulation>\n"
@@ -116,7 +120,10 @@ def generateOptimization(directory,fileroot,sub_path,baseName):
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
 
+    os.system("cp misc/bgq-Opt.sh "+directory+"/Optimization/")
+
 def generateDMC(directory,fileroot,sub_path,baseName):
+    import os
 
 
     main = "<?xml version=\"1.0\"?>\n"
@@ -157,3 +164,5 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     thisfile = directory +"/DMC/DMC.xml"
     with open(thisfile,"w") as fileOut:
 	fileOut.write("%s" %main)
+
+    os.system("cp misc/bgq-DMC.sh "+directory+"/DMC/")

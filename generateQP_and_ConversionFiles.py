@@ -257,7 +257,7 @@ class generateQP_and_ConversionFiles:
    	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
         scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
         pythonCalculationFilename3=self.filename2_args[2]
-        inputFile, NDET,basis, m,pp=self.parameters_args
+        inputFile, NDET,basis, m,pp,otherArguments=self.parameters_args
    	##############################################
 	#### GENERATE THE FCI CALCULATION FILE THAT WILL 
        	#### BE CALLED IN THE SUBMISSION FILE

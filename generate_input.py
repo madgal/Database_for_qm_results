@@ -13,9 +13,9 @@ Usage:
 			[--write_path=<path_name>] 
 			[--pseudopotential=<name_of_pp>]
 			[--n_det=<max_number_of_determinants>]
-			[-c=<charge_of_atom>]
-			[-d=<dummy_atoms>]
-			[-cart=<transform_to_cartesian>]
+			[--c=<charge_of_atom>]
+			[--d=<dummy_atoms>]
+			[--cart=<transform_to_cartesian>]
 
 Example of use:
 	./generate_input.py dmc --ele=C2 --basis="cc-pvdz" --geo=Experiment --pseudopotential=True
@@ -70,11 +70,13 @@ if __name__ == '__main__':
     #### CHECK IF THERE IS INPUT/ENERGIES FOR THIS RUN IN THE DATABASE ####
     #######################################################################
 
+    '''
     if qmc_input_exists():
     	grabFiles=True
     else:
 	grabFiles =False
-
+    '''
+    grabFiles=False
 
     if grabFiles:
 	### get the files from the database
@@ -91,39 +93,39 @@ if __name__ == '__main__':
         try:
             xyz = g.get(geometry,element)
         except KeyError:
-    	print "Error: Please generate an xyz file and update the database"
+    	    print "Error: Please generate an xyz file and update the database"
             pass
         else:
             to_print.append(xyz)
         if len(to_print)>1:
-    	print "Warning: There are multiple xyz files being generated"
-    	print "         To fix this try adding a specific geometry"
+       	    print "Warning: There are multiple xyz files being generated"
+    	    print "         To fix this try adding a specific geometry"
 
         str_ = "\n\n".join(to_print)
         
         if arguments["--write_path"]:
-             path = arguments["--write_path"]
-    	 path = path +"/"+mainDirectory
-    	 if not os.path.exists(path):
+          path = arguments["--write_path"]
+    	  path = path +"/"+mainDirectory
+    	  if not os.path.exists(path):
      	     os.mkdir(path)
-             inputFile= "_".join([element, geometry])
-    	 inputFile=inputFile+ g.ext
-             filepath = path +"/"+ inputFile
+          inputFile= "_".join([element, geometry])
+    	  inputFile=inputFile+ g.ext
+          filepath = path +"/"+ inputFile
     	 #print filepath
         else:
-             #path = "_".join([".".join(l_geo), ".".join(l_ele)])
-    	 path="/tmp/"+mainDirectory
-    	 if not os.path.exists(path):
+          #path = "_".join([".".join(l_geo), ".".join(l_ele)])
+    	  path="/tmp/"+mainDirectory
+      	  if not os.path.exists(path):
     	     os.mkdir(path)
-             inputFile= "_".join([element, geometry])
-    	 inputFile=inputFile+ g.ext
-             filepath = path + inputFile
+          inputFile= "_".join([element, geometry])
+    	  inputFile=inputFile+ g.ext
+          filepath = path + inputFile
         with open(filepath, 'w') as f:
              f.write(str_ + "\n")
         print "Files will be placed in  %s" %path
 
         if arguments["--submit_path"]:
-    	sub_path = arguments["--submit_path"]
+    	    sub_path = arguments["--submit_path"]
         else:
             sub_path=path
 
@@ -138,10 +140,11 @@ if __name__ == '__main__':
             print m
 
         if arguments["--n_det"]:
-    	NDET=arguments["--n_det"]
+    	    NDET=arguments["--n_det"]
+
         else:
     	#### otherwise set it to the quantum package default
-    	NDET=10000
+    	    NDET=10000
 
 
 
@@ -186,4 +189,4 @@ if __name__ == '__main__':
 
         myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
         myFile.generateMasterFile()
-	add_qmc_input_metadata()
+	#add_qmc_input_metadata()

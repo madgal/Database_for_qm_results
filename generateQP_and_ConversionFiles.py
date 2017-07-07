@@ -39,6 +39,8 @@ class generateQP_and_ConversionFiles:
 	if not(os.path.isdir(directory+"/DMC")):
 	    os.mkdir(directory+"/DMC")
 	generateDMC(directory,fileroot,sub_path,baseDir)
+        generateSystemSetup(directory,fileroot,sub_path)
+        finalizeTemplate(directory, fileroot)
 
 
     def generateMasterFile(self):

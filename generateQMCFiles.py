@@ -218,6 +218,7 @@ def generateDMC(directory,fileroot,sub_path,baseName):
    
 
     os.system("cp misc/runDMC.py " + directory+"/DMC")
+    os.system("cp misc/cutoff_gen.py " + directory+"/DMC")
 
 
     ################################################

@@ -33,7 +33,7 @@
     <parameter name="warmupSteps">  50 </parameter>
     <parameter name="timestep">  0.001 </parameter>
     <parameter name="steps">   30 </parameter>
-    <parameter name="blocks">  100</parameter>
+    <parameter name="blocks">  200</parameter>
     <parameter name="nonlocalmoves">  yes </parameter>
   </qmc>
 </simulation>

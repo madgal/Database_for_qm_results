@@ -173,11 +173,11 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     icld_ptcl = root[2]
     icld_wfs = root[3]
     
-    projName = "DMC-"+fileroot
+    projName = "DMC-"+fileroot+"_0.01"
     project.set("id",projName)
 
     ptclFile = sub_path+"/"+baseName+"/"+fileroot+".ptcl.xml"
-    wfsFile =  sub_path+"/"+baseName+"/"+fileroot+".wfs.xml"
+    wfsFile =  sub_path+"/"+baseName+"/"+fileroot+"_0.01.wfs.xml"
     icld_ptcl.set("href",ptclFile)
     icld_wfs.set("href",wfsFile)
 
@@ -189,6 +189,36 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     f.close()
 
     os.system("mv " + tmpfile + " " + myFile)
+
+    ###############################################
+    ### generate massive script for convergence
+    ###############################################
+
+    main="#!/bin/bash\n"
+    main= main +"NAME = " +fileroot+"\n"
+    main= main +"DIR = " + directory+"/DMC\n" 
+    main = main +"./bgq.sh   #0.01\n"
+    main = main + "#./runDMC.py $NAME $DIR 0.008\n"
+    main = main +"#./runDMC.py $NAME $DIR 0.006\n"
+    main = main + "#./runDMC.py $NAME $DIR 0.004\n"
+    main = main +"#./runDMC.py $NAME $DIR 0.002\n"
+    main = main + "#./runDMC.py $NAME $DIR 0.0009\n"
+    main =  main +"#./runDMC.py $NAME $DIR 0.0007\n"
+    main =  main +"#./runDMC.py $NAME $DIR 0.0005\n"
+    main = main + "#./runDMC.py $NAME $DIR 0.0003\n"
+    main = main + "#./runDMC.py $NAME $DIR 0.0001\n"
+    main =  main +"#./runDMC.py $NAME $DIR 0.00008\n"
+    main =  main +"#./runDMC.py $NAME $DIR 0.00006\n"
+    main = main + "#./runDMC.py $NAME $DIR 0.00004\n"
+    main =  main +"#./runDMC.py $NAME $DIR 0.00002\n"
+   
+    filename = directory + "/DMC/converge.sh"
+    with open(filename,"w") as f:
+         f.write("%s" %main)
+   
+
+    os.system("cp misc/runDMC.py " + directory+"/DMC")
+
 
     ################################################
     ### Generate bgq-DMC.sh

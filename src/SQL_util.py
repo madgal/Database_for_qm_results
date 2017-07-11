@@ -17,6 +17,10 @@ except:
 
 dump_path = os.path.abspath(os.path.dirname(__file__) + "/../db/g2.dump")
 db_path = os.path.abspath(os.path.dirname(__file__) + "/../db/g2.db")
+#dump_path ="https://github.com/madgal/qmcpack_buddy/blob/master/db/g2.dump" 
+#db_path ="https://github.com/madgal/qmcpack_buddy/blob/master/db/g2.db" 
+
+
 
 try:
     conn = connect4git(dump_path, db_path)

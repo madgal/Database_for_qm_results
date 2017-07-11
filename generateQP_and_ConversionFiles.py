@@ -39,7 +39,7 @@ class generateQP_and_ConversionFiles:
 	if not(os.path.isdir(directory+"/DMC")):
 	    os.mkdir(directory+"/DMC")
 	generateDMC(directory,fileroot,sub_path,baseDir)
-        generateSystemSetup(directory,fileroot,sub_path)
+        generateSystemSetup(directory,fileroot,sub_path,baseDir)
         finalizeTemplate(directory, fileroot)
 
 

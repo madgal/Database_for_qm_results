@@ -64,6 +64,7 @@ def generateOptimization(directory,fileroot,sub_path,baseName):
     from lxml import etree
 
     os.system("cp misc/Opt.xml " +directory +"/Optimization/")
+    os.system("cp utils/plot_OptProg.py " +directory +"/Optimization/")
 
     myFile = directory+"/Optimization/Opt.xml"
     tree = etree.parse(myFile)
@@ -103,7 +104,7 @@ def generateOptimization(directory,fileroot,sub_path,baseName):
     main = main +"# -*- coding: utf-8 -*- \n"
     main = main + "import os\n\n"
     main = main + "cutoff=0.01\n"
-    main = main + "os.system(\"./cutoff_gen.py "+fileroot + " \"+cutoff)\n"
+    main = main + "os.system(\"./cutoff_gen.py "+fileroot + " \"+str(cutoff))\n"
  
     filename = directory +"/Optimization/setup_OptFile1.py"
     with open(filename,"w") as f:
@@ -124,7 +125,7 @@ def generateOptimization(directory,fileroot,sub_path,baseName):
     main = main +"os.system(\"cp \" + myfile + \" \" + myfile+\"_BAK \")\n\n"
 
     main = main + "series = sys.argv[1]\n"
-    main = main + "optfile = \"" + projName  + "_0.01.s\" + series +\".opt.xml\"\n"
+    main = main + "optfile = \"" + fileroot  + "_0.01.s\" + series +\".opt.xml\"\n"
     main = main + "os.system(\"cp \" +optfile +\" \" + myfile)\n"
 
 
@@ -136,13 +137,30 @@ def generateOptimization(directory,fileroot,sub_path,baseName):
     main = main + "    corr[0].set(\"optimize\",\"yes\")\n"
 
     main = main +"###### NOW WRITE THE MODIFICATIONS TO A FILE\n"
-    main = main +"tmpfile = myFile+\".tmp\"\n"
+    main = main +"tmpfile = myfile+\".tmp\"\n"
     main = main +"f = open( tmpfile,\"w\")\n"
-    main = main +"f.write(\"<?xml version=\"1.0\"?>\\n\")\n"
+    main = main +"f.write(\"<?xml version=\\\"1.0\\\"?>\\n\")\n"
     main = main +"f.write(etree.tostring(root,pretty_print=True))\n"
     main = main +"f.close()\n"
 
     main = main +"os.system(\"mv \" + tmpfile + \" \" + myfile)\n"
+
+
+    main = main +"###### NOW WRITE THE MODIFICATIONS TO A FILE\n"
+    main = main +"tmpfile = myfile+\".tmp\"\n"
+    main = main + "myfile =\"Opt.xml\"\n"
+    main = main + "tree= etree.parse(myfile)\n"
+    main = main + "root = tree.getroot()\n"
+    main = main + "proj = root[0]\n"
+    main = main + "proj.set(\"series\",\"44\")\n"
+    main = main +"tmpfile = myfile+\".tmp\"\n"
+    main = main +"f = open( tmpfile,\"w\")\n"
+    main = main +"f.write(\"<?xml version=\\\"1.0\\\"?>\\n\")\n"
+    main = main +"f.write(etree.tostring(root,pretty_print=True))\n"
+    main = main +"f.close()\n"
+
+    main = main +"os.system(\"mv \" + tmpfile + \" \" + myfile)\n"
+
  
     filename = directory +"/Optimization/setup_OptFile2.py"
     with open(filename,"w") as f:
@@ -162,6 +180,7 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     from lxml import etree
 
     os.system("cp misc/DMC.xml " +directory +"/DMC/")
+    os.system("cp utils/format_data.py " +directory +"/DMC/")
 
     myFile = directory+"/DMC/DMC.xml"
     tree = etree.parse(myFile)
@@ -195,9 +214,9 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     ###############################################
 
     main="#!/bin/bash\n"
-    main= main +"NAME = " +fileroot+"\n"
-    main= main +"DIR = " + directory+"/DMC\n" 
-    main = main +"./bgq.sh   #0.01\n"
+    main= main +"NAME=" +fileroot+"\n"
+    main= main +"DIR=" +sub_path+"\n" 
+    main = main +"./bgq-DMC.sh   #0.01\n"
     main = main + "#./runDMC.py $NAME $DIR 0.008\n"
     main = main +"#./runDMC.py $NAME $DIR 0.006\n"
     main = main + "#./runDMC.py $NAME $DIR 0.004\n"
@@ -226,7 +245,7 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     ################################################
     os.system("cp misc/bgq-DMC.sh "+directory+"/DMC/")
 
-def generateSystemSetup(directory,fileroot,sub_path):
+def generateSystemSetup(directory,fileroot,sub_path,baseDir):
 
     ##############################################
     #### Generate system setup
@@ -246,9 +265,9 @@ def generateSystemSetup(directory,fileroot,sub_path):
     main = main + "sposet_up= determinantset[1]\n"
     main = main + "sposet_dn= determinantset[2]\n"
     main = main + "multidet = determinantset[3]\n"
-    main = main + "MyCuspUp =\""+sub_path +"/CuspCorrection/spo-up.cuspInfo.xml\"\n"
+    main = main + "MyCuspUp =\""+sub_path +"/"+baseDir+"/CuspCorrection/spo-up.cuspInfo.xml\"\n"
     main = main + "sposet_up.set(\"cuspInfo\",MyCuspUp)\n"
-    main = main + "MyCuspDn =\""+sub_path +"/CuspCorrection/spo-dn.cuspInfo.xml\"\n"
+    main = main + "MyCuspDn =\""+sub_path +"/"+baseDir+"/CuspCorrection/spo-dn.cuspInfo.xml\"\n"
     main = main + "sposet_dn.set(\"cuspInfo\",MyCuspDn)\n"
     main = main + "multidet.set(\"optimize\",\"no\")\n\n"
     main = main + "rcut_12 = 10\n"
@@ -263,14 +282,14 @@ def generateSystemSetup(directory,fileroot,sub_path):
     main = main + "    corr.set(\"rcut\",\"3\")\n"
     main = main + "    corr[0].set(\"optimize\",\"no\")\n"
 
-    main = main +"###### NOW WRITE THE MODIFICATIONS TO A FILE"
-    main = main +"tmpfile = myFile+\".tmp\"\n"
+    main = main +"###### NOW WRITE THE MODIFICATIONS TO A FILE\n"
+    main = main +"tmpfile = myfile+\".tmp\"\n"
     main = main +"f = open( tmpfile,\"w\")\n"
-    main = main +"f.write(\"<?xml version=\"1.0\"?>\\n\")\n"
+    main = main +"f.write(\"<?xml version=\\\"1.0\\\"?>\\n\")\n"
     main = main +"f.write(etree.tostring(root,pretty_print=True))\n"
     main = main +"f.close()\n"
 
-    main = main +"os.system(\"mv \" + tmpfile + \" \" + myFile)\n"
+    main = main +"os.system(\"mv \" + tmpfile + \" \" + myfile)\n"
     main = main + "os.system(\"cp \"+myfile+\" "+fileroot+".wfs.xml_template\")\n"
     
     filename = directory + "/setupSystemInitial.py"
@@ -291,8 +310,7 @@ def finalizeTemplate(directory, fileroot):
     main = main + "optFile =\"../"+fileroot+"_0.01.wfs.xml\"\n"
     main = main +"os.system(\"cp \" + optFile + \" \" + optFile+\"_BAK2\")\n\n"
     main = main + "series = sys.argv[1]\n"
-    projName = "Opt-"+fileroot
-    main = main + "optFinal= \"" + projName  + "_0.01.s\" + series +\".opt.xml\"\n"
+    main = main + "optFinal= \"" + fileroot  + "_0.01.s\" + series +\".opt.xml\"\n"
     main = main + "os.system(\"cp \" +optFinal+\" \" + optFile)\n"
 
     main = main + "template =\"../"+fileroot+".wfs.xml_template\"\n\n"
@@ -325,7 +343,7 @@ def finalizeTemplate(directory, fileroot):
     main = main +"###### NOW WRITE THE MODIFICATIONS TO A FILE\n"
     main = main +"tmpfile = template+\".tmp\"\n"
     main = main +"f = open( tmpfile,\"w\")\n"
-    main = main +"f.write(\"<?xml version=\"1.0\"?>\\n\")\n"
+    main = main +"f.write(\"<?xml version=\\\"1.0\\\"?>\\n\")\n"
     main = main +"f.write(etree.tostring(root,pretty_print=True))\n"
     main = main +"f.close()\n"
 

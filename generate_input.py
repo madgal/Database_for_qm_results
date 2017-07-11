@@ -30,6 +30,7 @@ try:
     from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
     from src.SQL_util import get_xyz, get_g09
     from generateQP_and_ConversionFiles import generateQP_and_ConversionFiles
+    #from recreateXML import *
 except:
     print "File in misc is corupted. Git reset may fix the issues"
     sys.exit(1)
@@ -80,7 +81,13 @@ if __name__ == '__main__':
 
     if grabFiles:
 	### get the files from the database
-	get_qmc_input_metadata()
+	#get_qmc_input_metadata()
+	filename, runNum = qmc_input_retrieve()
+	recreate_wfs(filename,runNum)
+	recreate_ptcl(filename,runNum)
+	recreate_Opt(filename,runNum)
+	recreate_DMC(filename,runNum)
+
 
     else:
         ### Now grab/create the xyz file

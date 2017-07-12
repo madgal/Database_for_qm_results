@@ -39,8 +39,9 @@ if __name__ == '__main__':
 
     arguments = docopt(__doc__, version='G2 Api ' + version)
 
-    if not (arguments["--ele"] and arguments["--basis"]):
-	print "The element name and basis set are required"
+    ### Retrieve the arguments passed by the user
+    if not (arguments["--ele"] and arguments["--basis"] and arguments["--geo"] ):
+	print "The element name, basis set, and geometry are required"
 	sys.exit(1)
     else:
 	element = arguments["--ele"]
@@ -48,6 +49,14 @@ if __name__ == '__main__':
 	basis   = arguments["--basis"]
         mainDirectory = element + "_"+geometry +"_"+basis
 
+   
+        #### Check if the user wants to change the default number of determinants
+        if arguments["--n_det"]:
+    	    NDET=arguments["--n_det"]
+        else:# set it to the quantum package default
+    	    NDET=10000
+
+    ### Check for additional QP arguments
     otherArguments = ""
     if arguments["--c"]:
 	charge = arguments["--c"]
@@ -59,12 +68,24 @@ if __name__ == '__main__':
 	otherArguments = otherArguments + " -cart "
 
 
+    ## Check to see if we will use a pseudopotential
     if arguments["--pseudopotential"]:
 	pp = arguments["--pseudopotential"]
-	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t pp: %s \n \t Other args: %s" %(element, basis, geometry,pp,otherArguments)
+	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t pp: %s \n \t Additional args: %s" %(element, basis, geometry,pp,otherArguments)
     else:
-	pp=False
-	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t No pp\n \t Other args: %s" %(element, basis, geometry,otherArguments)
+	pp=False #set the value to false so that it exists but  will not be used
+	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t No pp\n \t Additional args: %s" %(element, basis, geometry,otherArguments)
+
+    ### Check if the user wants to write to specific location
+    if arguments["--write_path"]:
+	write_path = arguments["--write_path"]
+    else:
+        write_path=False
+    if arguments["--submit_path"]:
+	submit_path = arguments["--submit_path"]
+    else:
+        submit_path=False
+
 
 
     #######################################################################
@@ -72,7 +93,7 @@ if __name__ == '__main__':
     #######################################################################
 
     '''
-    if qmc_input_exists():
+    if qmc_input_exists():## check database to see if the run exists
     	grabFiles=True
     else:
 	grabFiles =False
@@ -81,7 +102,6 @@ if __name__ == '__main__':
 
     if grabFiles:
 	### get the files from the database
-	#get_qmc_input_metadata()
 	filename, runNum = qmc_input_retrieve()
 	recreate_wfs(filename,runNum)
 	recreate_ptcl(filename,runNum)
@@ -90,109 +110,42 @@ if __name__ == '__main__':
 
 
     else:
-        ### Now grab/create the xyz file
-        from collections import namedtuple
-        
-        get_general = namedtuple('get_general', ['get','ext'])
-        g = get_general(get=get_xyz,ext='.xyz')
 
-        to_print=[]
-        try:
-            xyz = g.get(geometry,element)
-        except KeyError:
-    	    print "Error: Please generate an xyz file and update the database"
-            pass
-        else:
-            to_print.append(xyz)
-        if len(to_print)>1:
-       	    print "Warning: There are multiple xyz files being generated"
-    	    print "         To fix this try adding a specific geometry"
-
-        str_ = "\n\n".join(to_print)
-        
-        if arguments["--write_path"]:
-          path = arguments["--write_path"]
-    	  path = path +"/"+mainDirectory
-    	  if not os.path.exists(path):
-     	     os.mkdir(path)
-          inputFile= "_".join([element, geometry])
-    	  inputFile=inputFile+ g.ext
-          filepath = path +"/"+ inputFile
-    	 #print filepath
-        else:
-          #path = "_".join([".".join(l_geo), ".".join(l_ele)])
-    	  path="/tmp/"+mainDirectory
-      	  if not os.path.exists(path):
-    	     os.mkdir(path)
-          inputFile= "_".join([element, geometry])
-    	  inputFile=inputFile+ g.ext
-          filepath = path + inputFile
-        with open(filepath, 'w') as f:
-             f.write(str_ + "\n")
-        print "Files will be placed in  %s" %path
-
-        if arguments["--submit_path"]:
-    	    sub_path = arguments["--submit_path"]
-        else:
-            sub_path=path
-
-
-
-        ### Now obtain the multiplicity etc... 
-        try:
-            m = dict_raw()[element]["multiplicity"]
-        except KeyError:
-            pass
-        else:
-            print m
-
-        if arguments["--n_det"]:
-    	    NDET=arguments["--n_det"]
-
-        else:
-    	#### otherwise set it to the quantum package default
-    	    NDET=10000
-
-
-
-
-
-        #####################################################################
+	#####################################################################
         ### Now define the variables that will be needed in all of the calls
         #####################################################################
         rootname = str(element)+"_"+geometry+"_"+str(basis)
         rootname = rootname.replace(" ","")
+	rootname_det= rootname+ "_"+ str(NDET)
+        rootname_det = rootname_det.replace(" ","")
 
-        scf_rootname= rootname + "_1"
-        scf_rootname = scf_rootname.replace(" ","")
-        scf_dumpname = scf_rootname + ".dump"
-        #SCF_out_filename =path + "/"+ rootname + ".SCF.out"
-        SCF_out_filename = rootname + ".SCF.out"
+	import generate_QP_input
+        [path,sub_path] = generate_QP_input.fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirectory,submit_path)
 
-        fci_rootname= rootname+ "_"+ str(NDET)
-        fci_rootname = fci_rootname.replace(" ","")
-        fci_dumpname = fci_rootname + ".dump"
-        #FCI_out_filename =path + "/"+ rootname + ".FCI.out"
-        FCI_out_filename = fci_rootname + ".FCI.out"
+        #fci_rootname= rootname+ "_"+ str(NDET)
+        #fci_rootname = fci_rootname.replace(" ","")
+        #fci_dumpname = fci_rootname + ".dump"
+        ##FCI_out_filename =path + "/"+ rootname + ".FCI.out"
+        #FCI_out_filename = fci_rootname + ".FCI.out"
 
-        #ezfio_filename = path + "/"+rootname + ".ezfio"
-        ezfio_filename = rootname + ".ezfio"
-        #inputFile = filepath
-        #qmc_rootname = rootname
-        #A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
-        A2M_out_filename =rootname + ".ao2mo.out"
+        ##ezfio_filename = path + "/"+rootname + ".ezfio"
+        #ezfio_filename = rootname + ".ezfio"
+        ##inputFile = filepath
+        ##qmc_rootname = rootname
+        ##A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
+        #A2M_out_filename =rootname + ".ao2mo.out"
 
-        pythonCalculationFilename1 ="setup_and_runscf_"+rootname+".py"
-        pythonCalculationFilename2 ="ao_2_mo_"+rootname+".py"
-        pythonCalculationFilename3 ="run_fci_"+rootname+".py"
-        pythonCalculationFilename4= "conversion_" +rootname+".py"
+        #pythonCalculationFilename1 ="setup_and_runscf_"+rootname+".py"
+        #pythonCalculationFilename2 ="ao_2_mo_"+rootname+".py"
+        #pythonCalculationFilename3 ="run_fci_"+rootname+".py"
+        #pythonCalculationFilename4= "conversion_" +rootname+".py"
 
 
         ### generate all the files
-        main_filepath_args = [path,rootname,sub_path,ezfio_filename]
-        filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
-        filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
-        parameters_args    = [inputFile, NDET,basis, m,pp,otherArguments]
+        #main_filepath_args = [path,rootname,sub_path,ezfio_filename]
+        #filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
+        #filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
+        #parameters_args    = [inputFile, NDET,basis, m,pp,otherArguments]
 
         myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
         myFile.generateMasterFile()

@@ -189,104 +189,6 @@ class generateQP_and_ConversionFiles:
     
 
 
-    def __generate_QP_SCFCalculation__(self):
-   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
-        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
-        pythonCalculationFilename1=self.filename2_args[0]
-        inputFile, NDET,basis, m,pp,otherArguments=self.parameters_args
-	##############################################
-	#### GENERATE THE CALCULATION FILE THAT WILL 
-        #### BE CALLED IN THE SUBMISSION FILE
-	##############################################
-	fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
-        fileHeader=fileHeader + "#THIS FILE CREATES THE EZFIO AND RUNS THE SCF CALCULATION \n \n"
-	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio \n"
-	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
-        fileMain = "### first create the ezfio file\n"
-	if pp:
-	     fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+" -p "+str(pp)+otherArguments+" -o " +ezfio_filename+"\")\n"
-	else:
-             fileMain =fileMain+ "os.system(\"qp_create_ezfio_from_xyz " + str(inputFile)+ " -b \'"+str(basis)+"\' -m "+str(m)+otherArguments+" -o " +ezfio_filename+"\")\n"
-	fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
-        fileMain = fileMain+ "#Setup calculation for running SCF and ao to mo transformation\n"
-	fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_ao_integrals(\"Write\")\n"
-        fileMain = fileMain +"ezfio.set_integrals_bielec_disk_access_mo_integrals(\"Write\")\n"
-	fileMain = fileMain +"ezfio.set_integrals_monoelec_disk_access_ao_one_integrals(\"Write\")\n"
-	fileMain = fileMain +"ezfio.set_integrals_monoelec_disk_access_mo_one_integrals(\"Write\")\n"
-
-       	fileMain = fileMain +"### Now run the SCF calculation\n"
-	fileMain = fileMain +"if mpirun.lower()[0]==\"t\":\n"
-	fileMain = fileMain +"   os.system(\"./qp-mpirun.sh SCF "+ezfio_filename+"/ > "+SCF_out_filename+"\")\n"
-	fileMain = fileMain +"else:\n"
-       	fileMain = fileMain +"   os.system(\"qp_run SCF "+ezfio_filename+"/ > "+SCF_out_filename+"\")\n"
-
-	fileoutName = path + "/" +pythonCalculationFilename1
-	with open(fileoutName,"w") as fileout:
-       	    fileout.write("%s" %fileHeader)
-	    fileout.write("%s" %fileMain)
-	
-    def __generate_scfDump_ao2moTransform__(self):
-   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
-        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
-        pythonCalculationFilename2=self.filename2_args[1]
-        ##############################################
-        ### GENERATE THE CALCULATION FILE THAT WILL 
-        ### BE CALLED IN THE SUBMISSION FILE
-        #############################################
-        	
-        ### BEGIN FILECREATION
-        
-        fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
-        fileHeader=fileHeader + "#THIS FILE CREATES THE EZFIO, RUNS THE SCF CALCULATION, AND THEN RUNS THE FCI CALCULATION \n \n"
-        fileHeader=fileHeader + "import os \nimport sys \n"
-        fileHeader=fileHeader + "from ezfio import ezfio \n\n"
-        
-	fileMain=""
-        fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
-
-        fileMain = fileMain +"### convert the ao to mo\n"
-	fileMain = fileMain +"ezfio.set_determinants_n_det_max(1)\n"
-        fileMain = fileMain +"### Now save the 1 det system for qmcpack\n"
-        fileMain = fileMain +"os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+scf_dumpname+"\")\n"
-        fileMain = fileMain +"os.system(\"qp_run fci_zmq "+ezfio_filename+"/ > "+A2M_out_filename+"\")\n"
-          
-       	fileoutName = path + "/" +pythonCalculationFilename2
-	with open(fileoutName,"w") as fileout:
-    	   fileout.write("%s" %fileHeader)
-    	   fileout.write("%s" %fileMain)
-
-    def __generate_fciCalculation__(self):
-   	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
-        scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
-        pythonCalculationFilename3=self.filename2_args[2]
-        inputFile, NDET,basis, m,pp,otherArguments=self.parameters_args
-   	##############################################
-	#### GENERATE THE FCI CALCULATION FILE THAT WILL 
-       	#### BE CALLED IN THE SUBMISSION FILE
-	##############################################
-
-	### BEGIN FILECREATION
-	fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
-	fileHeader=fileHeader + "#THIS FILE RUNS THE FCI CALCULATION \n \n"
-	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio\n"
-	fileHeader=fileHeader + "mpirun=sys.argv[1]\n"
-
-	fileMain=""
-        fileMain = fileMain+"ezfio.set_file(\""+ezfio_filename+"\")\n"
-        fileMain = fileMain +"ezfio.set_determinants_read_wf(True)\n"
-        fileMain = fileMain +"ezfio.set_determinants_n_det_max("+str(NDET)+")\n"
-
-	fileMain = fileMain +"### run the cipsi calculation\n"
-	fileMain = fileMain +"if mpirun.lower()[0]==\"t\":\n"
-	fileMain = fileMain +"   os.system(\"./qp-mpirun.sh fci_zmq "+ezfio_filename+"/ > "+FCI_out_filename+"\")\n"
-	fileMain = fileMain +"else:\n"
-	fileMain = fileMain +"   os.system(\"qp_run fci_zmq "+ezfio_filename+"/ > "+FCI_out_filename+"\")\n"
-
-       	fileoutName = path + "/" +pythonCalculationFilename3
-	with open(fileoutName,"w") as fileout:
-		fileout.write("%s" %fileHeader)
-		fileout.write("%s" %fileMain)
- 
     def __generate_fciDump_conversions_qmcBlocks__(self):
    	path,rootname,sub_path,ezfio_filename = self.main_filepath_args
         scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename=self.filename1_args     
@@ -299,7 +201,7 @@ class generateQP_and_ConversionFiles:
 	### BEGIN FILECREATION
 	fileHeader="#!/usr/bin/env python \n# -*- coding: utf-8 -*- \n"
 	fileHeader=fileHeader + "#THIS FILE CONVERTS FOR QMCPACK INPUT \n \n"
-	fileHeader=fileHeader + "import os \nimport sys \nfrom ezfio import ezfio \n"
+	fileHeader=fileHeader + "import os \nimport sys \n"
 
 	BINDIR="/soft/applications/qmcpack/github/build_Intel_real/bin"
 
@@ -310,8 +212,6 @@ class generateQP_and_ConversionFiles:
 	fileHeader=fileHeader + "#THIS FILE MAKES THE INPUT FILES TO QMCPACK \n \n"
 	fileHeader=fileHeader + "import os \nimport sys \n"
 
-	fileMain ="os.system(\"qp_run save_for_qmcpack "+ezfio_filename+"/ > "+fci_dumpname+"\")\n\n"
-	main=""
 
 	fileMain = fileMain + "baseDir=\""+sub_path+"\"\n"
 	if self.doSCF:

@@ -229,7 +229,6 @@ def generateDMC(directory,fileroot,sub_path,baseName):
     main =  main +"#./runDMC.py $NAME $DIR 0.00008\n"
     main =  main +"#./runDMC.py $NAME $DIR 0.00006\n"
     main = main + "#./runDMC.py $NAME $DIR 0.00004\n"
-    main =  main +"#./runDMC.py $NAME $DIR 0.00002\n"
    
     filename = directory + "/DMC/converge.sh"
     with open(filename,"w") as f:

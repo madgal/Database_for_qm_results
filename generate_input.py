@@ -121,24 +121,34 @@ if __name__ == '__main__':
 
 	import generate_QP_input
         [path,sub_path] = generate_QP_input.fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirectory,submit_path)
+	
+	import do_Conversion
 
-        #fci_rootname= rootname+ "_"+ str(NDET)
-        #fci_rootname = fci_rootname.replace(" ","")
-        #fci_dumpname = fci_rootname + ".dump"
-        ##FCI_out_filename =path + "/"+ rootname + ".FCI.out"
-        #FCI_out_filename = fci_rootname + ".FCI.out"
 
-        ##ezfio_filename = path + "/"+rootname + ".ezfio"
-        #ezfio_filename = rootname + ".ezfio"
-        ##inputFile = filepath
-        ##qmc_rootname = rootname
-        ##A2M_out_filename =path + "/"+ rootname + ".ao2mo.out"
-        #A2M_out_filename =rootname + ".ao2mo.out"
+	#### THe following is specific to my project and needs to be fixed
+	fileroot = mainDirectory + "_1Det"
+	multiDet = False
+	noJastrow = True
+	3BodyJastrow =False
+	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow)
+	noJastrow = False
+	3BodyJastrow =True
+	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow)
 
-        #pythonCalculationFilename1 ="setup_and_runscf_"+rootname+".py"
-        #pythonCalculationFilename2 ="ao_2_mo_"+rootname+".py"
-        #pythonCalculationFilename3 ="run_fci_"+rootname+".py"
-        #pythonCalculationFilename4= "conversion_" +rootname+".py"
+	fileroot = mainDirectory + "_" + str(NDET)
+	multiDet = True 
+	noJastrow = True
+	3BodyJastrow =False
+	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow)
+	multiDet = True 
+	noJastrow =False
+	3BodyJastrow = True
+	reopt=True
+	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow,reopt)
+
+
+
+
 
 
         ### generate all the files

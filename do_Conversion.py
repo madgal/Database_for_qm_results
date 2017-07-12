@@ -14,20 +14,20 @@ def qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,
 		flags = " -add3BodyJ"
 		directory ="Jastrow"
 	if pp:	
-		dmc_templateName = "DMC_template_PP.xml"
-		opt_templateName = "Opt_template_PP.xml"
+		dmc_templateName = "DMC_PP.xml"
+		opt_templateName = "Opt_PP.xml"
 	else:
 		flags = flags + " -addCusp"
-		dmc_templateName = "DMC_template_AE.xml"
-		opt_templateName = "Opt_template_AE.xml"
+		dmc_templateName = "DMC_AE.xml"
+		opt_templateName = "Opt_AE.xml"
 
 
 	if multiDet and reopt:
 		directory =directory + "_MultiDet_reoptCoeff"
 		newDir = path +"/" + mainDirectory + "/" +directory
 		os.mkdir(newDir)
-		### generate the DMC files first because they will get modified during cutoff generation
-		__generateDMC__(newDir,fileroot,submit_path,directory,dmc_templateName)
+		### generate the cutoff directories which will 
+		###  have the optimization and dmc runs in them 
 		__generateCutoff__(newDir,fileroot,submit_path,directory)
 		filepath = directory + "/" + fileroot
 
@@ -35,8 +35,8 @@ def qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,
 		directory =directory + "_MultiDet"
 		newDir = path +"/" + mainDirectory + "/" +directory
 		os.mkdir(newDir)
-		### generate the DMC files first because they will get modified during cutoff generation
-		__generateDMC__(newDir,fileroot,submit_path,directory,dmc_templateName)
+		### generate the cutoff directories which will 
+		###  have the optimization and dmc runs in them 
 		__generateCutoff__(newDir,fileroot,submit_path,directory)
 		filepath = directory + "/" + fileroot
 
@@ -44,7 +44,7 @@ def qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,
 		directory =directory + "_1Det"
 		newDir = path +"/" + mainDirectory + "/" +directory
 		os.mkdir(newDir)
-		### generate the DMC files
+		### generate the DMC files because there is not optimization
 		__generateDMC__(newDir,fileroot,submit_path,directory,dmc_templateName)
 		filepath = directory + "/" + fileroot
 
@@ -71,10 +71,26 @@ def qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,
 
 def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt):
 
-	### 
-	__optJastrows__(directory,fileroot,sub_path,baseName)
+	import os
+	cutoffs = [0.01,0.008,0.006,0.004,0.002,0.0009,0.0007,0.0005,0.0003,0.0001,0.00008,0.00006,0.00004]
+
+
 	if reopt:
-		__optCoeffs__(directory,fileroot,sub_path,baseName)
+		for value in cutoffs:	
+			os.mkdir(directory + "/"+baseName + "/cutoff_"+str(value))
+			local_baseName = baseName + "/cutoff_"+str(value)
+
+			__generateDMC__(directory,fileroot,sub_path,local_baseName,template_Name)
+			__optCoeffsAndJastrows__(directory,fileroot,sub_path,local_baseName)
+
+	### 
+	else:
+		for value in cutoffs:	
+			os.mkdir(directory + "/"+baseName + "/cutoff_"+str(value))
+			local_baseName = baseName + "/cutoff_"+str(value)
+
+			__generateDMC__(directory,fileroot,sub_path,local_baseName,template_Name)
+			__optJastrows__(directory,fileroot,sub_path,local_baseName)
 
 def __generateDMC__(directory,fileroot,sub_path,baseName,template_Name):
     import os

@@ -60,39 +60,3 @@ f.close()
 os.system("mv " + tmpfile + " " + mycutoff)
 
 
-#################################
-#### Modify the Opt.xml file ####
-#################################
-
-myFile = "Opt.xml"
-tree = etree.parse(myFile)
-
-root = tree.getroot()
-
-newName = fileroot + "_"+str(cutoffValue)
-
-project = root[0]
-icld_ptcl= root[2]
-icld_wfs = root[3]
-
-project.set("id",newName)
-
-wfsFile = icld_ptcl.get("href")
-wfsFile =  wfsFile[:-9]
-wfsFile = wfsFile + "_"+str(cutoffValue) + ".wfs.xml"
-icld_wfs.set("href",wfsFile)
-
-###### NOW WRITE THE MODIFICATIONS TO A FILE
-tmpfile = myFile+".tmp"
-f = open( tmpfile,"w")
-f.write("<?xml version=\"1.0\"?>\n")
-f.write(etree.tostring(root,pretty_print=True))
-f.close()
-
-os.system("mv " + tmpfile + " " + myFile)
-
-
-
-
-
-

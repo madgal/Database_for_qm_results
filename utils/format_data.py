@@ -27,7 +27,7 @@ filename = "convergence.dat"
 with open(filename, "r") as filein:
 	for row in filein:
 		row = row.split(" ")
-		print row
+		#print row
 		if count>1 and len(row)>2 and int(row[3])==2:
 			#print row
 			#print row[0],row[5],row[7],row[10],row[12],row[15]

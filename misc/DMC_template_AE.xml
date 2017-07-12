@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<simulation>
+  <project id="DMC-something" series="1"/>
+  <!-- input from quantum package converter -->
+  <include href="this.ptcl.xml"/>
+  <include href="this.wfs.xml"/>
+  <!--  Hamiltonian -->
+  <hamiltonian name="h0" type="generic" target="e">
+    <pairpot name="IonElec" type="coulomb" source="ion0" target="e"/>
+    <constant name="IonIon" type="coulomb" source="ion0" target="ion0"/>
+    <pairpot name="ElecElec" type="coulomb" source="e" target="e" physical="true"/>
+  </hamiltonian>
+
+
+ <init source="ion0" target="e"/>
+</simulation>

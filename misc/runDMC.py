@@ -38,8 +38,8 @@ else:
 
     os.system("mv " + tmpfile + " " + myFile)
     
-   run = raw_input("Are you certain you want to run DMC (yes/no)? \n > ")
-   if run[0].lower()=="y": 
+    run = raw_input("Are you certain you want to run DMC (yes/no)? \n > ")
+    if run[0].lower()=="y": 
 	print "Submitting the job"
 	os.system("./bgq-DMC.sh")
 

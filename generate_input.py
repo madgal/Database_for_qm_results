@@ -57,7 +57,7 @@ if __name__ == '__main__':
     	    NDET=10000
 
     ### Check for additional QP arguments
-    otherArguments = ""
+    otherArguments = " "
     if arguments["--c"]:
 	charge = arguments["--c"]
 	otherArguments = otherArguments + " -c " +charge + " "
@@ -114,11 +114,6 @@ if __name__ == '__main__':
 	#####################################################################
         ### Now define the variables that will be needed in all of the calls
         #####################################################################
-        rootname = str(element)+"_"+geometry+"_"+str(basis)
-        rootname = rootname.replace(" ","")
-	rootname_det= rootname+ "_"+ str(NDET)
-        rootname_det = rootname_det.replace(" ","")
-
 	import generate_QP_input
         [path,sub_path] = generate_QP_input.fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirectory,submit_path)
 	
@@ -129,22 +124,26 @@ if __name__ == '__main__':
 	fileroot = mainDirectory + "_1Det"
 	multiDet = False
 	noJastrow = True
-	3BodyJastrow =False
-	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow)
+	Jastrow3B =False
+	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 	noJastrow = False
-	3BodyJastrow =True
-	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow)
+	Jastrow3B =True
+	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 
 	fileroot = mainDirectory + "_" + str(NDET)
 	multiDet = True 
 	noJastrow = True
-	3BodyJastrow =False
-	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow)
+	Jastrow3B =False
+	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	multiDet = True 
+	noJastrow =False 
+	Jastrow3B =True
+	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 	multiDet = True 
 	noJastrow =False
-	3BodyJastrow = True
+	Jastrow3B = True
 	reopt=True
-	do_Conversion.qp2qmc(write_path, submit_path,mainDirectory,fileroot,pp,multiDet,noJastrow,3BodyJastrow,reopt)
+	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B,reopt)
 
 
 
@@ -157,6 +156,6 @@ if __name__ == '__main__':
         #filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
         #parameters_args    = [inputFile, NDET,basis, m,pp,otherArguments]
 
-        myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
-        myFile.generateMasterFile()
+        #myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
+        #myFile.generateMasterFile()
 	#add_qmc_input_metadata()

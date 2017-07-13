@@ -1,4 +1,3 @@
-##############################################
 #!/usr/bin/env python 
 # -*- coding: utf-8 -*-
 #THIS FILE CREATES THE EZFIO AND RUNS THE SCF CALCULATION

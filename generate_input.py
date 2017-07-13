@@ -47,7 +47,7 @@ if __name__ == '__main__':
 	element = arguments["--ele"]
 	geometry = arguments["--geo"]
 	basis   = arguments["--basis"]
-        mainDirectory = element + "_"+geometry +"_"+basis
+        rootname = element + "_"+geometry +"_"+basis
 
    
         #### Check if the user wants to change the default number of determinants
@@ -115,35 +115,35 @@ if __name__ == '__main__':
         ### Now define the variables that will be needed in all of the calls
         #####################################################################
 	import generate_QP_input
-        [path,sub_path] = generate_QP_input.fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirectory,submit_path)
+        [path,sub_path] = generate_QP_input.fromScratch(geometry,element,basis,NDET,otherArguments,write_path,rootname,submit_path)
 	
-	import do_Conversion
+	import generate_qp_through_qmc
 
 
 	#### THe following is specific to my project and needs to be fixed
-	fileroot = mainDirectory + "_1Det"
+	fileroot = rootname + "_1Det"
 	multiDet = False
 	noJastrow = True
 	Jastrow3B =False
-	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 	noJastrow = False
 	Jastrow3B =True
-	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 
-	fileroot = mainDirectory + "_" + str(NDET)
+	fileroot = rootname + "_" + str(NDET)
 	multiDet = True 
 	noJastrow = True
 	Jastrow3B =False
-	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 	multiDet = True 
 	noJastrow =False 
 	Jastrow3B =True
-	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
 	multiDet = True 
 	noJastrow =False
 	Jastrow3B = True
 	reopt=True
-	do_Conversion.qp2qmc(path, sub_path,mainDirectory,fileroot,pp,multiDet,noJastrow,Jastrow3B,reopt)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,reopt)
 
 
 

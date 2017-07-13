@@ -1,6 +1,9 @@
 def  fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirectory,submit_path):
+        from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
+        from src.SQL_util import get_xyz, get_g09
 	### Now grab/create the xyz file from the database
         from collections import namedtuple
+	import os
  
         get_general = namedtuple('get_general', ['get','ext'])
         g = get_general(get=get_xyz,ext='.xyz')
@@ -38,7 +41,7 @@ def  fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirec
         print "Files will be placed in  %s" %path
 
         if submit_path:
-    	    sub_path = submit_path
+    	    sub_path = submit_path + "/" + mainDirectory
         else:
             sub_path=path
 
@@ -50,11 +53,14 @@ def  fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirec
         else:
             print m
 
+        rootname = str(element)+"_"+geometry+"_"+str(basis)
+        rootname = rootname.replace(" ","")
+
 	param_args = [inputFile,basis,m,otherArguments]
         __generate_ezfio__(path,rootname,param_args)
         __do_a2m_trans__(path,rootname,NDET)
         __do_fci_calc__(path,rootname,NDET)
-        __save4qmc__(path,rootname)
+        __save4qmc__(path,rootname,NDET)
 
 
 	return [path,sub_path]
@@ -64,22 +70,22 @@ def __generate_ezfio__(path,rootname,param_args):
         SCF_out_filename = rootname + ".SCF.out"
         ezfio_filename = rootname + ".ezfio"
 	fileName= "setup_and_run_qp"
-	dictionary = {"inputFile":inputFile,"basis":basis,"multiplicity":m,"otherArguments":otherArguments,"ezfio_filename":ezfio_filename,"SCF_out_filename":SCF_out_filename}
+	dictionary = {"inputFile":inputFile,"basis":basis,"multiplicity":str(m),"otherArguments":otherArguments,"ezfio_filename":ezfio_filename,"SCF_out_filename":SCF_out_filename}
 
 	fileTemplate = "misc/" +fileName + ".py"
 	newFile=[]
 	with open(fileTemplate,"r") as fileIn:
-		for line in filein:
+		for line in fileIn:
 			for key in dictionary:
 				if key in line:
 					line = line.replace(key,dictionary[key])
 
-		newFile.append(line)
+			newFile.append(line)
 
-        newFilename = path + "/"fileName +"_"+rootname+".py"
+        newFilename = path + "/"+fileName +"_"+rootname+".py"
 	with open(newFilename,"w") as fileOut:
 		for line in newFile:
-			fileOut.write("%s\n" %line)
+			fileOut.write("%s" %line)
 
 def  __do_a2m_trans__(path,rootname,N_det):
 
@@ -92,17 +98,17 @@ def  __do_a2m_trans__(path,rootname,N_det):
 	fileTemplate = "misc/" +fileName + ".py"
         newFile=[]
         with open(fileTemplate,"r") as fileIn:
-                for line in filein:
+                for line in fileIn:
                         for key in dictionary:
                                 if key in line:
                                         line = line.replace(key,dictionary[key])
 
-                newFile.append(line)
+	                newFile.append(line)
 
-        newFilename = path + "/"fileName +"_"+rootname+".py"
+        newFilename = path + "/"+fileName +"_"+rootname+".py"
         with open(newFilename,"w") as fileOut:
                 for line in newFile:
-                        fileOut.write("%s\n" %line)
+                        fileOut.write("%s" %line)
 
 def __do_fci_calc__(path,rootname,NDET):
 
@@ -114,36 +120,36 @@ def __do_fci_calc__(path,rootname,NDET):
 	fileTemplate = "misc/" +fileName + ".py"
         newFile=[]
         with open(fileTemplate,"r") as fileIn:
-                for line in filein:
+                for line in fileIn:
                         for key in dictionary:
                                 if key in line:
                                         line = line.replace(key,dictionary[key])
 
-                newFile.append(line)
+       		        newFile.append(line)
 
-        newFilename = path + "/"fileName +"_"+rootname+".py"
+        newFilename = path + "/"+fileName +"_"+rootname+".py"
         with open(newFilename,"w") as fileOut:
                 for line in newFile:
-                        fileOut.write("%s\n" %line)
+                        fileOut.write("%s" %line)
 def __save4qmc__(path,rootname,NDET):
 
         ezfio_filename = rootname + ".ezfio"
         fci_dumpname = rootname +"_"+str(NDET)+ ".dump"
 
-	dictionary = {"ezfio_filename":ezfio_filename,"fci_dumpname":fci_dumpname)
+	dictionary = {"ezfio_filename":ezfio_filename,"fci_dumpname":fci_dumpname}
 	fileName = "save_fci_4_qmc"
 
 	fileTemplate = "misc/" +fileName + ".py"
         newFile=[]
         with open(fileTemplate,"r") as fileIn:
-                for line in filein:
+                for line in fileIn:
                         for key in dictionary:
                                 if key in line:
                                         line = line.replace(key,dictionary[key])
 
-                newFile.append(line)
+	                newFile.append(line)
 
-        newFilename = path + "/"fileName +"_"+rootname+".py"
+        newFilename = path + "/"+fileName +"_"+rootname+".py"
         with open(newFilename,"w") as fileOut:
                 for line in newFile:
-                        fileOut.write("%s\n" %line)
+                        fileOut.write("%s" %line)

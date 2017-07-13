@@ -29,7 +29,6 @@ try:
     from src.docopt import docopt
     from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
     from src.SQL_util import get_xyz, get_g09
-    from generateQP_and_ConversionFiles import generateQP_and_ConversionFiles
     #from recreateXML import *
 except:
     print "File in misc is corupted. Git reset may fix the issues"
@@ -145,17 +144,3 @@ if __name__ == '__main__':
 	reopt=True
 	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,reopt)
 
-
-
-
-
-
-        ### generate all the files
-        #main_filepath_args = [path,rootname,sub_path,ezfio_filename]
-        #filename1_args     = [scf_dumpname,SCF_out_filename,fci_dumpname,FCI_out_filename,A2M_out_filename]
-        #filename2_args     = [pythonCalculationFilename1,pythonCalculationFilename2,pythonCalculationFilename3,pythonCalculationFilename4]
-        #parameters_args    = [inputFile, NDET,basis, m,pp,otherArguments]
-
-        #myFile = generateQP_and_ConversionFiles(main_filepath_args,filename1_args,filename2_args,parameters_args)
-        #myFile.generateMasterFile()
-	#add_qmc_input_metadata()

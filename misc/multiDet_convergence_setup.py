@@ -15,7 +15,7 @@ for value in cutoffs:
 	newfilename=thisDir + "/FILEROOT_" + str(value)
 	initialfilename =mainDir  +"/FILEROOT"
         os.system("cp "+initialfilename+".wfs.xml "+newfilename+".wfs.xml")
-        os.system("cp "+initilafilename+".ptcl.xml "+thisDir+"/")
+        os.system("cp "+initialfilename+".ptcl.xml "+thisDir+"/")
 
 
         match = "<ci id="

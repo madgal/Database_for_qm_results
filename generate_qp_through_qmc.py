@@ -1,4 +1,4 @@
-def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jastrow3Body,reopt=False):
+def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jastrow3Body,xyz_file,reopt=False):
 	'''
 	Path: 		the directory to write the files to
 	submit_path:	the directory where the job submission will be done from ( may be the same  as the path)
@@ -66,12 +66,15 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 
 	if not(pp):
 		__generateCusp__(newDir,fileroot,submit_path,directory,multiDet)
+	else:
+		
+	        __grabPseudo_makeHam__(newDir,fileroot,submit_path,directory,Jastrow3Body,xyz_file)
 
 
+	conversion_template= "misc/converter.py"
 	dump_filename = fileroot + ".dump"
 	dictionary = {"DUMPNAME":dump_filename,"FLAGS":flags, "FileName":filepath,"ABSPATH":submit_path}
 
-	conversion_template= "misc/converter.py"
         newFile=[]
         with open(conversion_template,"r") as fileIn:
                 for line in fileIn:
@@ -196,8 +199,67 @@ def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
 
     os.system("cp misc/cusp.sh " +directory + "/cusp.sh") 
 
+def __grabPseudo_makeHam__(directory,fileroot,sub_path,baseName,opt,xyz_name):
 
+	import lxml
+	import os
+	from lxml import etree
 
+	count=0
+	element=[]
+	with open(xyz_name,"r") as fileIn:	
+		for line in fileIn:
+			if count >1:
+				line.split(" ")
+				if line[0] not in element:
+					element.append(line[0])
+			count+=1
+
+	for el in element:
+		os.system("cp ~/qmcpack-3.0.0/pseudopotentials/"+el + ".BFD.xml " + directory)
+
+	### modify DMC.xml hamiltonian to include PP
+	myFile = directory + "/DMC/DMC.xml"
+	tree = etree.parse(myFile)
+	hamilt   =  etree.Element("hamiltonian")
+
+	for el in element:
+		pseudo = etree.subElement(hamilt[0],"pseudo")
+		pseudo.set("elementType",el)
+		el_path =sub_path + "/"+baseName + "/"+el+".BFD.xml"
+		pseudo.set("href",el_path)
+		
+	###### NOW WRITE THE MODIFICATIONS TO A FILE
+	tmpfile = myFile+".tmp"
+	f = open( tmpfile,"w")
+	f.write("<?xml version=\"1.0\"?>\n")
+	f.write(etree.tostring(root,pretty_print=True))
+	f.close()
+
+	os.system("mv " + tmpfile + " " + myFile)
+
+	if opt:
+		## Modify Opt.xml hamiltonian to include PP
+	    	myFile = directory + "/Optimization/Opt.xml"
+		tree = etree.parse(myFile)
+		hamilt   =  etree.Element("hamiltonian")
+
+		for el in element:
+			pseudo = etree.subElement(hamilt[0],"pseudo")
+			pseudo.set("elementType",el)
+			el_path =sub_path + "/"+baseName + "/"+el+".BFD.xml"
+			pseudo.set("href",el_path)
+		
+		###### NOW WRITE THE MODIFICATIONS TO A FILE
+		tmpfile = myFile+".tmp"
+		f = open( tmpfile,"w")
+		f.write("<?xml version=\"1.0\"?>\n")
+		f.write(etree.tostring(root,pretty_print=True))
+		f.close()
+
+		os.system("mv " + tmpfile + " " + myFile)
+
+	
 def __generateDMC__(directory,wfsFile,ptclFile,sub_path,baseName,usepp):
     import os
     ################################################
@@ -232,14 +294,6 @@ def __generateDMC__(directory,wfsFile,ptclFile,sub_path,baseName,usepp):
     wfsFile =  sub_path+"/"+baseName+"/"+wfsFile +".wfs.xml"
     icld_ptcl.set("href",ptclFile)
     icld_wfs.set("href",wfsFile)
-
-
-    if usepp:
-    	hamilt   = root[5]
-	## then add the pp part
-	hamilt[0][0].set("element","C")
-	loc = sub_path + "/"+baseName + "/C.BFD.xml"
-	hamilt[0][0].set("element",loc)
 
     ###### NOW WRITE THE MODIFICATIONS TO A FILE
     tmpfile = myFile+".tmp"

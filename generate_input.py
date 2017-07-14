@@ -119,29 +119,30 @@ if __name__ == '__main__':
 	
 	import generate_qp_through_qmc
 
+	xyzFile = path +"/"+element + "_"+geometry+".xyz"
 
 	#### THe following is specific to my project and needs to be fixed
 	fileroot = rootname + "_1Det"
 	multiDet = False
 	noJastrow = True
 	Jastrow3B =False
-	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,xyzFile)
 	noJastrow = False
 	Jastrow3B =True
-	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,xyzFile)
 
 	fileroot = rootname + "_" + str(NDET)
 	multiDet = True 
 	noJastrow = True
 	Jastrow3B =False
-	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,xyzFile)
 	multiDet = True 
 	noJastrow =False 
 	Jastrow3B =True
-	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,xyzFile)
 	multiDet = True 
 	noJastrow =False
 	Jastrow3B = True
 	reopt=True
-	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,reopt)
+	generate_qp_through_qmc.conversion_and_qmcInput(path, sub_path,fileroot,pp,multiDet,noJastrow,Jastrow3B,xyzFile,reopt)
 

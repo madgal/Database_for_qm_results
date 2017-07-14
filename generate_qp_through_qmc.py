@@ -36,7 +36,7 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 			os.mkdir(newDir)
 		### generate the cutoff directories which will 
 		###  have the optimization and dmc runs in them 
-		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp,Jastrow3Body)
+		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp,Jastrow3Body,xyz_file)
 		filepath = directory + "/" + fileroot
 
 	elif multiDet:
@@ -46,7 +46,7 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 			os.mkdir(newDir)
 		### generate the cutoff directories which will 
 		###  have the optimization and dmc runs in them 
-		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp,Jastrow3Body)
+		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp,Jastrow3Body,xyz_file)
 		filepath = directory + "/" + fileroot
 
 	else:
@@ -62,13 +62,12 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 			__optJ12__(newDir,submit_path,directory,fileroot,multi=False)
 			__optJ3__(newDir,submit_path,directory,fileroot)
 			__finishOpt__(newDir,submit_path,directory,fileroot)
+		if pp:
+	        	__grabPseudo_makeHam__(newDir,newDir,submit_path,directory,Jastrow3Body,xyz_file)
 
 
 	if not(pp):
 		__generateCusp__(newDir,fileroot,submit_path,directory,multiDet)
-	else:
-		
-	        __grabPseudo_makeHam__(newDir,fileroot,submit_path,directory,Jastrow3Body,xyz_file)
 
 
 	conversion_template= "misc/converter.py"
@@ -90,7 +89,7 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
                         fileOut.write("%s" %line)
 
 
-def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp,optimize):
+def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp,optimize,xyz_file):
 	""" Make directories to look at the convergence of the energy as the cutoff increases"""
 
 	import os
@@ -134,6 +133,8 @@ def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp,optimize
 				__optCoeffsAndJastrows__(thisDir,sub_path,local_baseName,cutoffroot)
 			__optJ3__(thisDir,sub_path,local_baseName,cutoffroot)
 			__finishOpt__(thisDir,sub_path,local_baseName,cutoffroot)
+		if usepp:
+	        	__grabPseudo_makeHam__(thisDir,directory,sub_path,baseName,optimize,xyz_file)
 
 def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
     import os
@@ -199,7 +200,7 @@ def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
 
     os.system("cp misc/cusp.sh " +directory + "/cusp.sh") 
 
-def __grabPseudo_makeHam__(directory,fileroot,sub_path,baseName,opt,xyz_name):
+def __grabPseudo_makeHam__(directory,outerDir,sub_path,baseName,opt,xyz_name):
 
 	import lxml
 	import os
@@ -214,20 +215,24 @@ def __grabPseudo_makeHam__(directory,fileroot,sub_path,baseName,opt,xyz_name):
 				if line[0] not in element:
 					element.append(line[0])
 			count+=1
-
 	for el in element:
-		os.system("cp ~/qmcpack-3.0.0/pseudopotentials/"+el + ".BFD.xml " + directory)
+		os.system("cp ~/qmcpack-3.0.0/pseudopotentials/BFD/"+el + ".BFD.xml " + outerDir)
 
 	### modify DMC.xml hamiltonian to include PP
 	myFile = directory + "/DMC/DMC.xml"
 	tree = etree.parse(myFile)
-	hamilt   =  etree.Element("hamiltonian")
+	root = tree.getroot()
+	hamilt   = root[5] 
+	pairPot1 = hamilt[0]
 
+	count=0
 	for el in element:
-		pseudo = etree.subElement(hamilt[0],"pseudo")
+		pairPot1.append(etree.Element("pseudo"))
+		pseudo = pairPot1[count]
 		pseudo.set("elementType",el)
 		el_path =sub_path + "/"+baseName + "/"+el+".BFD.xml"
 		pseudo.set("href",el_path)
+		count+=1
 		
 	###### NOW WRITE THE MODIFICATIONS TO A FILE
 	tmpfile = myFile+".tmp"
@@ -242,13 +247,18 @@ def __grabPseudo_makeHam__(directory,fileroot,sub_path,baseName,opt,xyz_name):
 		## Modify Opt.xml hamiltonian to include PP
 	    	myFile = directory + "/Optimization/Opt.xml"
 		tree = etree.parse(myFile)
-		hamilt   =  etree.Element("hamiltonian")
-
+		root = tree.getroot()
+		hamilt   = root[5] 
+		pairPot1 = hamilt[0]
+	
+		count=0
 		for el in element:
-			pseudo = etree.subElement(hamilt[0],"pseudo")
+			pairPot1.append(etree.Element("pseudo"))
+			pseudo = pairPot1[count]
 			pseudo.set("elementType",el)
 			el_path =sub_path + "/"+baseName + "/"+el+".BFD.xml"
 			pseudo.set("href",el_path)
+			count+=1
 		
 		###### NOW WRITE THE MODIFICATIONS TO A FILE
 		tmpfile = myFile+".tmp"
@@ -343,13 +353,6 @@ def __generateOpt__(directory,wfsFile,ptclFile,sub_path,baseName,usepp):
     icld_ptcl.set("href",ptclFile)
     icld_wfs.set("href",wfsFile)
 
-
-    if usepp:
-    	hamilt   = root[5]
-	## then add the pp part
-	hamilt[0][0].set("element","C")
-	loc = sub_path + "/"+baseName + "/C.BFD.xml"
-	hamilt[0][0].set("element",loc)
 
     ###### NOW WRITE THE MODIFICATIONS TO A FILE
     tmpfile = myFile+".tmp"

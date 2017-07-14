@@ -7,13 +7,15 @@ cutoffs = [0.01,0.008,0.006,0.004,0.002,0.0009,0.0007,0.0005,0.0003,0.0001,0.000
 prevDet=0
 
 for value in cutoffs:
-	thisDir = THISDIR + "/cutoff_"+str(value)
+	mainDir = "MAINDIR"
+	thisDir = mainDir+"/cutoff_"+str(value)
         if not(os.path.exists(thisDir)):
                print "%s does not exist " %thisDir 
 	
 	newfilename=thisDir + "/FILEROOT_" + str(value)
-        os.system("cp INITIALFILENAME.wfs.xml "+newfilename+".wfs.xml")
-        os.system("cp INITILAFILENAME.ptcl.xml "+thisDir+"/")
+	initialfilename =mainDir  +"/FILEROOT"
+        os.system("cp "+initialfilename+".wfs.xml "+newfilename+".wfs.xml")
+        os.system("cp "+initilafilename+".ptcl.xml "+thisDir+"/")
 
 
         match = "<ci id="

@@ -6,5 +6,7 @@ import sys
 from ezfio import ezfio
 
 
-os.system("qp_run save_for_qmcpack ezfio_filename/ > fci_dumpname")
+NAME="FILEROOT"
+NAME2 = NAME+"_NDET"
+os.system("qp_run save_for_qmcpack "+NAME+".ezfio/ > "+NAME2+".dump")
 

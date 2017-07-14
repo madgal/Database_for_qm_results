@@ -36,7 +36,7 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 			os.mkdir(newDir)
 		### generate the cutoff directories which will 
 		###  have the optimization and dmc runs in them 
-		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp)
+		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp,Jastrow3Body)
 		filepath = directory + "/" + fileroot
 
 	elif multiDet:
@@ -46,7 +46,7 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 			os.mkdir(newDir)
 		### generate the cutoff directories which will 
 		###  have the optimization and dmc runs in them 
-		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp)
+		__generateCutoff__(newDir,fileroot,submit_path,directory,reopt,pp,Jastrow3Body)
 		filepath = directory + "/" + fileroot
 
 	else:
@@ -68,8 +68,8 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 		__generateCusp__(newDir,fileroot,submit_path,directory,multiDet)
 
 
-	dump_filename = path + "/"+ fileroot + ".dump"
-	dictionary = {"DUMPNAME":dump_filename,"FLAGS":flags, "absFileName":filepath}
+	dump_filename = fileroot + ".dump"
+	dictionary = {"DUMPNAME":dump_filename,"FLAGS":flags, "FileName":filepath,"ABSPATH":submit_path}
 
 	conversion_template= "misc/converter.py"
         newFile=[]
@@ -87,16 +87,15 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
                         fileOut.write("%s" %line)
 
 
-def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp):
+def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp,optimize):
 	""" Make directories to look at the convergence of the energy as the cutoff increases"""
 
 	import os
 	cutoffs = [0.01,0.008,0.006,0.004,0.002,0.0009,0.0007,0.0005,0.0003,0.0001,0.00008,0.00006,0.00004]
 
 
-	thisdir = directory + "/"+baseName
-	oldFileName =directory +"/"+baseName +"/" + fileroot  
-	dictionary = {"THISDIR":thisdir,"INITIALFILENAME":oldFileName, "FILEROOT":fileroot}
+	thisdir = sub_path + "/"+baseName
+	dictionary = {"MAINDIR":thisdir, "FILEROOT":fileroot}
 
 
 	fileName= "multiDet_convergence_setup"
@@ -124,13 +123,14 @@ def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp):
 		local_baseName = baseName + "/cutoff_"+str(value)
 		cutoffroot = fileroot + "_" + str(value)
 
-		__generateDMC__(directory,cutoffroot,fileroot,sub_path,local_baseName,usepp)
-		__generateOpt__(directory,cutoffroot,fileroot,sub_path,local_baseName,usepp)
-		__optJ12__(directory,sub_path,local_baseName,cutoffroot,multi=True)
-		if reopt:
-			__optCoeffsAndJastrows__(directory,sub_path,local_baseName,cutoffroot)
-		__optJ3__(directory,sub_path,local_baseName,cutoffroot)
-		__finishOpt__(directory,sub_path,local_baseName,cutoffroot)
+		__generateDMC__(thisDir,cutoffroot,fileroot,sub_path,local_baseName,usepp)
+		if optimize:
+			__generateOpt__(thisDir,cutoffroot,fileroot,sub_path,local_baseName,usepp)
+			__optJ12__(thisDir,sub_path,local_baseName,cutoffroot,multi=True)
+			if reopt:
+				__optCoeffsAndJastrows__(thisDir,sub_path,local_baseName,cutoffroot)
+			__optJ3__(thisDir,sub_path,local_baseName,cutoffroot)
+			__finishOpt__(thisDir,sub_path,local_baseName,cutoffroot)
 
 def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
     import os

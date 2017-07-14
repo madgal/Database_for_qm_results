@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-os.system("cp FULLDIR/FILEROOT.wfs.xml FULLDIR/FILEROOT.wfs.xml_3b")
+Directory = "FULLDIR"
+myfile =Directory+"/FILEROOT.wfs.xml"
+
+os.system("cp "+myfile+" " +myfile+"_3b")
 
 
 os.system("OptProgress.pl *scalar.dat > opt_3b.dat")
@@ -21,4 +24,4 @@ with open("opt_3b.dat","r") as fileIn:
 
 index = energies.index(min(energies))
 
-os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml FULLDIR/FILEROOT.wfs.xml")
+os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml "+myfile)

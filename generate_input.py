@@ -70,6 +70,7 @@ if __name__ == '__main__':
     ## Check to see if we will use a pseudopotential
     if arguments["--pseudopotential"]:
 	pp = arguments["--pseudopotential"]
+	otherArguments = otherArguments + " -p " +pp
 	print "The system is: \n \t element: %s \n \t basis: %s \n \t geometry: %s \n \t pp: %s \n \t Additional args: %s" %(element, basis, geometry,pp,otherArguments)
     else:
 	pp=False #set the value to false so that it exists but  will not be used

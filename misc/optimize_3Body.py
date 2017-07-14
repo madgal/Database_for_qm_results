@@ -3,8 +3,9 @@
 import os
 
 try:
-	os.system("cp FULLDIR/FILEROOT.wfs.xml FULLDIR/FILEROOT.wfs.xml_12_coeff")
-
+	Directory = "FULLDIR"
+        myfile =Directory+"/FILEROOT.wfs.xml"
+	os.system("cp "+ myfile +" " +myfile + "_12_coeff")
 
 	os.system("OptProgress.pl *scalar.dat > opt_1b2b_coef.dat")
 
@@ -23,13 +24,12 @@ try:
 	
 	index = energies.index(min(energies))
 
-	os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml FULLDIR/FILEROOT.wfs.xml")
+	os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml "+myfile)
 
 
 	import lxml
 	from lxml import etree
 
-	myfile ="FULLDIR/FILEROOT.wfs.xml"
 	tree= etree.parse(myfile)
 	root = tree.getroot()
 	wavefunc = root[0]
@@ -47,7 +47,7 @@ try:
 	os.system("mv " + tmpfile + " " + myfile)
 
    	### update where the series will start
-	myfile = "FULLDIR/Optimization/Opt.xml"
+	myfile = Directory+"/Optimization/Opt.xml"
    	tree= etree.parse(myfile)
 	root = tree.getroot()
 	root[0].set("series","87")

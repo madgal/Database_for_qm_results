@@ -4,8 +4,9 @@ try:
 	import os 
         import lxml
         from lxml import etree
-	os.system("cp FULLDIR/FILEROOT.wfs.xml FULLDIR/FILEROOT.wfs.xml_BAK")
-        myfile ="FULLDIR/FILEROOT.wfs.xml"
+	Directory = "FULLDIR"
+        myfile =Directory+"/FILEROOT.wfs.xml"
+	os.system("cp "+ myfile +" " +myfile + "_BAK")
 
 	tree= etree.parse(myfile)
 	root = tree.getroot()

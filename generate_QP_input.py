@@ -67,10 +67,8 @@ def  fromScratch(geometry,element,basis,NDET,otherArguments,write_path,mainDirec
 
 def __generate_ezfio__(path,rootname,param_args):
         [inputFile,basis,m,otherArguments]= param_args
-        SCF_out_filename = rootname + ".SCF.out"
-        ezfio_filename = rootname + ".ezfio"
 	fileName= "setup_and_run_qp"
-	dictionary = {"inputFile":inputFile,"basis":basis,"multiplicity":str(m),"otherArguments":otherArguments,"ezfio_filename":ezfio_filename,"SCF_out_filename":SCF_out_filename}
+	dictionary = {"inputFile":inputFile,"basis":basis,"multiplicity":str(m),"otherArguments":otherArguments,"FILEROOT":rootname}
 
 	fileTemplate = "misc/" +fileName + ".py"
 	newFile=[]
@@ -89,10 +87,7 @@ def __generate_ezfio__(path,rootname,param_args):
 
 def  __do_a2m_trans__(path,rootname,N_det):
 
-        ezfio_filename = rootname + ".ezfio"
-        scf_dumpname = rootname + "_1.dump"
-	A2M_out_filename =rootname + ".ao2mo.out"
-	dictionary = {"ezfio_filename":ezfio_filename,"scf_dumpname":scf_dumpname,"A2M_out_filename":A2M_out_filename,"NDET":N_det}
+	dictionary = {"FILEROOT":rootname,"NDET":N_det}
 	fileName = "a2m_trans"
 
 	fileTemplate = "misc/" +fileName + ".py"
@@ -112,9 +107,7 @@ def  __do_a2m_trans__(path,rootname,N_det):
 
 def __do_fci_calc__(path,rootname,NDET):
 
-        ezfio_filename = rootname + ".ezfio"
-        FCI_out_filename = rootname +"_"+str(NDET)+ ".FCI.out"
-	dictionary = {"ezfio_filename":ezfio_filename,"FCI_out_filename":FCI_out_filename}
+	dictionary = {"FILEROOT":rootname, "NDET":str(NDET)}
 	fileName = "run_fci"
 
 	fileTemplate = "misc/" +fileName + ".py"
@@ -133,10 +126,7 @@ def __do_fci_calc__(path,rootname,NDET):
                         fileOut.write("%s" %line)
 def __save4qmc__(path,rootname,NDET):
 
-        ezfio_filename = rootname + ".ezfio"
-        fci_dumpname = rootname +"_"+str(NDET)+ ".dump"
-
-	dictionary = {"ezfio_filename":ezfio_filename,"fci_dumpname":fci_dumpname}
+	dictionary = {"FILEROOT":rootname, "NDET":str(NDET)}
 	fileName = "save_fci_4_qmc"
 
 	fileTemplate = "misc/" +fileName + ".py"

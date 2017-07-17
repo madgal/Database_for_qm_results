@@ -6,9 +6,6 @@ import os
 
 
 '''
-Standard OptProgress.pl output: 
-
-['HF_cc-pvDz-DMC_0.0007', '', 'series', '1', '', '-100.333720', '+/-', '0.014640', '', '', '7.055517', '+/-', '0.375961', '', '', '0.0703', '\n']
 '''
 
 seriesName =[]
@@ -19,8 +16,8 @@ dmcVarErr =[]
 ratio =[]
 ndet=[]
 
-os.system("qmca -q ev *scalar.dat > convergence.dat")
-os.system("grep \"detlist size=\" ../*wfs.xml > grepped_dets.dat")
+os.system("qmca -q ev */DMC/*scalar.dat > convergence.dat")
+#os.system("grep \"detlist size=\" */*wfs.xml > grepped_dets.dat")
 
 count=0
 filename = "convergence.dat"
@@ -38,6 +35,13 @@ with open(filename, "r") as filein:
 			dmcVarErr.append(row[12])
 			ratio.append(row[15])
 		count+=1
+
+for dirs in seriesName:
+	dirs = dirs.split("/")
+	print dirs
+	dirs = dirs[0]
+	os.system("grep \"detlist size=\" "+dirs+"/*wfs.xml >> grepped_dets.dat")
+
 
 filename = "grepped_dets.dat"
 with open(filename, "r") as filein:

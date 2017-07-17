@@ -4,8 +4,10 @@ try:
 	import os 
         import lxml
         from lxml import etree
-	Directory = "FULLDIR"
-        myfile =Directory+"/FILEROOT.wfs.xml"
+	import sys
+
+	fileroot = sys.argv[1]
+        myfile =fileroot+".wfs.xml"
 	os.system("cp "+ myfile +" " +myfile + "_BAK")
 
 	tree= etree.parse(myfile)

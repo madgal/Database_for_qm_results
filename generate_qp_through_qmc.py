@@ -192,13 +192,13 @@ def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
     				line = line.replace(key,dictionary[key])
 	    	newFile.append(line)
 
-    newFilename = directory + "/"+fileName + ".py"
+    newFilename = directory + "/CuspCorrection/"+fileName + ".py"
     with open(newFilename,"w") as fileOut:
 	for line in newFile:
 		fileOut.write("%s" %line)
 
 
-    os.system("cp misc/cusp.sh " +directory + "/cusp.sh") 
+    os.system("cp misc/cusp.sh " +directory + "/CuspCorrection/cusp.sh") 
 
 def __grabPseudo_makeHam__(directory,outerDir,sub_path,baseName,opt,xyz_name):
 

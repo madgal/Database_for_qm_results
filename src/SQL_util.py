@@ -245,7 +245,7 @@ def add_qmc_energy(run_id, id_, e, err, overwrite=False, commit=False):
         cmd = """INSERT INTO qmc_energy_tab(run_id,id,energy,err)
                   VALUES (?,?,?,?)"""
 
-    c.execute(cmd, [run_id, id_, e, err])
+    #c.execute(cmd, [run_id, id_, e, err])
 
     if commit:
         conn.commit()
@@ -334,6 +334,22 @@ def add_energies_cispi(run_list, geo_list, basis_list, path, tail,
 def add_qmc_input_metadata():
     # Add input files to database so that others can verify/recreate results
     print "Add qmc info"
+
+    id_ = get_mol_id(name)
+
+    print name, run_id, id_
+
+    if not debug:
+        try:
+            c.execute('''INSERT OR REPLACE INTO
+                        qmc_input_tab(run_id,id)
+                        VALUES (?,?,?,?,?,?)''', [run_id, id_])
+
+            conn.commit()
+        except:
+            raise Exception('Cannot add to the db')
+
+
 
 
 # ______                         _

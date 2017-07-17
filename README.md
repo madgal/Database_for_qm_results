@@ -32,6 +32,12 @@ Output files include:
 			format_data.py will be added to DMC directories
 			plot_OptProg.py will be added to Optimization directories
 
+		
+		Additionally:
+			unpackXML.py will go through the optimization and dmc files to pull out the necessary parameters for later runs
+			recreateXML.py goes through the database and pulls the necessary information to set up a qmc calculation
+				if the data does not yet exist it will set up a bare bones calculation for the user
+
 	
 	Note that if NDET is not specified then the quantum package default of 10000 is used. 
 

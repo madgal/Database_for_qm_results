@@ -1,27 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
-Directory = "FULLDIR"
-myfile =Directory+"/FILEROOT.wfs.xml"
+import sys
+import lxml
+from lxml import etree
+
+fileroot =sys.argv[1]
+myfile ="../"+fileroot+".wfs.xml"
 
 os.system("cp "+myfile+" " +myfile+"_3b")
 
 
 os.system("OptProgress.pl *scalar.dat > opt_3b.dat")
 
+optfile = "Opt.xml"
+tree= etree.parse(optfile)
+root = tree.getroot()
+## pull the first series number we want to check with 
+initialSeries = float(root[0].get("series"))
 
 series=[]
 energies=[]
+prevEnergies=[]
 with open("opt_3b.dat","r") as fileIn:
 	for row in fileIn:
 		row = row.split("  ")
-		series.append(row[0])
-		if int(row[0]) >86:
+		if int(row[0]) >initialSeries:
+			series.append(row[0])
 			energies.append(float(row[1]))
 		else:	
-			energies.append(100.0)
+			prevEnergies.append(float(row[1]))
 	
 
 index = energies.index(min(energies))
-
-os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml "+myfile)
+print series[index]
+os.system("cp Opt-"+fileroot +".s"+series[index]+".opt.xml "+myfile)

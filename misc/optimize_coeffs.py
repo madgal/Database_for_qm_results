@@ -1,10 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import sys
 
 try:
-	Directory = "FULLDIR"
-        myfile =Directory+"/FILEROOT.wfs.xml"
+        import lxml
+        from lxml import etree
+        from glob import glob
+        fileroot = sys.argv[1] 
+
+	print "The wavefunction used is \"../%s.wfs.xml\"\n" %fileroot
+	print "The optimization files are \"Opt-%s.*\"" %fileroot
+
+        myfile ="../"+fileroot+".wfs.xml"
 	os.system("cp "+ myfile +" " +myfile + "_12Opt")
 
 	os.system("OptProgress.pl *scalar.dat > opt_1b2b.dat")
@@ -20,12 +28,9 @@ try:
 		
 	
 	index = energies.index(min(energies))
+	print series[index]
 
-	os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml "+myfile)
-
-
-	import lxml
-	from lxml import etree
+	os.system("cp Opt-"+fileroot+".s"+series[index]+".opt.xml "+myfile)
 
 	tree= etree.parse(myfile)
 	root = tree.getroot()
@@ -42,12 +47,18 @@ try:
 
 	os.system("mv " + tmpfile + " " + myfile)
 
+	### get where the series should restart
+	match = "Opt-"+fileroot + "*opt.xml"
+	seriesNum = []
+        for filename in glob(match):
+                seriesNum.append(int(filename[-11:-8]))
+        restartSeriesNum = str(max(seriesNum)+1)
 
 	### update where the series will start
-	myfile = Directory +"/Optimization/Opt.xml"
+	myfile = "Opt.xml"
    	tree= etree.parse(myfile)
 	root = tree.getroot()
-	root[0].set("series","44")
+	root[0].set("series",restartSeriesNum)
 
 	tmpfile = myfile+".tmp"
 	f = open( tmpfile,"w")

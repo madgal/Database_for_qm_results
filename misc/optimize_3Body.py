@@ -1,64 +1,84 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
+import sys
+import numpy as np
 
 try:
-	Directory = "FULLDIR"
-        myfile =Directory+"/FILEROOT.wfs.xml"
-	os.system("cp "+ myfile +" " +myfile + "_12_coeff")
+	import lxml
+	from lxml import etree
+	from glob import glob
+	fileroot = sys.argv[1]
 
-	os.system("OptProgress.pl *scalar.dat > opt_1b2b_coef.dat")
+        myfile ="../"+fileroot +".wfs.xml"
+	os.system("cp "+ myfile +" " +myfile + "_no3Body")
 
+	os.system("OptProgress.pl *scalar.dat > opt_without3Body.dat")
+
+	match = "Opt-"+fileroot + "*.opt.xml"
+	seriesNum = []
+	for filename in glob(match):
+		seriesNum.append(int(filename[-11:-8]))
+ 	maxSeriesNum = max(seriesNum)
+
+   	### update where the series will start
+	optfile = "Opt.xml"
+   	tree= etree.parse(optfile)
+	root = tree.getroot()
+	## pull the first series number we want to check with 
+	initialSeries = int(root[0].get("series"))
+	root[0].set("series",str(maxSeriesNum+1))
+
+	tmpfile = optfile+".tmp"
+	f = open( tmpfile,"w")
+	f.write("<?xml version=\"1.0\"?>\n")
+	f.write(etree.tostring(root,pretty_print=True))
+	f.close()
+
+	os.system("mv " + tmpfile + " " + optfile)
+
+        ########################################
 
 	series=[]
 	energies=[]
-	with open("opt_1b2b_coef.dat","r") as fileIn:
+	prevEnergies=[]
+	with open("opt_without3Body.dat","r") as fileIn:
 		for row in fileIn:
 			row = row.split("  ")
-			series.append(row[0])
-			if int(row[0]) >43:
+			if int(row[0]) >initialSeries+1:
+				series.append(row[0])
 				energies.append(float(row[1]))
 			else:	
-				energies.append(100.0)
+				prevEnergies.append(float(row[1]))
 		
+
+	if( np.mean(energies) < np.mean(prevEnergies)):
 	
-	index = energies.index(min(energies))
+		### Then the coefficients are probably optimized
+		index = energies.index(min(energies))
+		print series[index]
+	
+		os.system("cp Opt-" + fileroot+".s"+series[index]+".opt.xml "+myfile)
 
-	os.system("cp Opt-FILEROOT.s"+series[index]+".opt.xml "+myfile)
+		tree= etree.parse(myfile)
+		root = tree.getroot()
+		wavefunc = root[0]
+		determinantset = wavefunc[0]
+		j3Body = wavefunc[3]
+		for corr in j3Body:
+			corr[0].set("optimize","yes")
 
+		tmpfile = myfile+".tmp"
+		f = open( tmpfile,"w")
+		f.write("<?xml version=\"1.0\"?>\n")
+		f.write(etree.tostring(root,pretty_print=True))
+		f.close()
 
-	import lxml
-	from lxml import etree
-
-	tree= etree.parse(myfile)
-	root = tree.getroot()
-	wavefunc = root[0]
-	determinantset = wavefunc[0]
-	j3Body = wavefunc[3]
-	for corr in j3Body:
-		corr[0].set("optimize","yes")
-
-	tmpfile = myfile+".tmp"
-	f = open( tmpfile,"w")
-	f.write("<?xml version=\"1.0\"?>\n")
-	f.write(etree.tostring(root,pretty_print=True))
-	f.close()
-
-	os.system("mv " + tmpfile + " " + myfile)
-
-   	### update where the series will start
-	myfile = Directory+"/Optimization/Opt.xml"
-   	tree= etree.parse(myfile)
-	root = tree.getroot()
-	root[0].set("series","87")
-
-	tmpfile = myfile+".tmp"
-	f = open( tmpfile,"w")
-	f.write("<?xml version=\"1.0\"?>\n")
-	f.write(etree.tostring(root,pretty_print=True))
-	f.close()
-
-	os.system("mv " + tmpfile + " " + myfile)
+		os.system("mv " + tmpfile + " " + myfile)
+	
+	#else:
+	#resubmit the optimization without changing initial file
+	
 
  
 except Exception:

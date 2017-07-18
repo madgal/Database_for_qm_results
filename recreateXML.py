@@ -3,6 +3,30 @@
 def recreate_wfs(filename,runNum):
 def recreate_ptcl(filename,runNum):
 def recreate_Opt(filename,runNum):
+
+
+
+	### pull from database:
+
+	'''
+	myresult = pull_from_db()
+	
+	myresult = myresult.split(")(")
+	vmc_method_tags = myresult[0][1:]
+   	vmc_estimator = myresult[1]
+   	vmc_parameters=myresult[2]
+	opt_loop1_tag =myresult[3]
+	opt_loop1_qmc  =myresult[4]
+	opt_estimator1 =myresult[5]
+	opt_costFunc1 = myresult[6]
+	opt_parameter1 =myresult[7]
+	opt_loop2_tag =myresult[8]
+	opt_loop2_qmc  =myresult[9]
+	opt_estimator2 =myresult[10]
+        opt_costFunc2  =myresult[11]
+        opt_parameter2   =myresult[12][:-1]
+
+	'''
         from lxml import etree
 	
 	tree = etree.parse("misc/Opt_template.xml")
@@ -100,4 +124,70 @@ def recreate_Opt(filename,runNum):
 	    parm.text = pair[1]
 
 def recreate_DMC(filename,runNum):
+	### pull from database:
+
+	'''
+	myresult = pull_from_db()
+	
+	myresult = myresult.split(")(")
+	vmc_method_tags = myresult[0][1:]
+   	vmc_estimator = myresult[1]
+   	vmc_parameters=myresult[2]
+	dmc_method_tags = myresult[3]
+   	dmc_estimator = myresult[4]
+   	dmc_parameters=myresult[5][:-1]
+
+
+	'''
+        from lxml import etree
+	
+	tree = etree.parse("misc/DMC_template.xml")
+	root = tree.getroot()
+	id_num=runNum
+	vmc_method_tags = ""
+   	vmc_estimator = "" 
+   	vmc_parameters= "" 
+	dmc_method_tags = ""
+   	dmc_estimator = "" 
+   	dmc_parameters= "" 
+
+
+        vmc = etree.SubElement(root, "qmc")
+	mydict = vmc_method_tags.split(",")
+	for val in mydict:
+            pair = val.split("=")
+    	    vmc.set(pair[0],pair[1])
+
+	mydict = vmc_estimator.split(",")
+	est = etree.SubElement(vmc,"estimator")
+	for val in mydict:
+            pair = val.split("=")
+    	    est.set(pair[0],pair[1])
+
+        mydict = vmc_parameters.split(",")
+	for val in mydict:
+	    parm = etree.SubElement(vmc,"parameter")
+	    pair = val.split("=")
+	    parm.set("name",pair[0])
+	    parm.text = pair[1]
+
+        dmc = etree.SubElement(root, "qmc")
+	mydict = dmc_method_tags.split(",")
+	for val in mydict:
+            pair = val.split("=")
+    	    dmc.set(pair[0],pair[1])
+
+	mydict = dmc_estimator.split(",")
+	est = etree.SubElement(dmc,"estimator")
+	for val in mydict:
+            pair = val.split("=")
+    	    est.set(pair[0],pair[1])
+
+        mydict = dmc_parameters.split(",")
+	for val in mydict:
+	    parm = etree.SubElement(dmc,"parameter")
+	    pair = val.split("=")
+	    parm.set("name",pair[0])
+	    parm.text = pair[1]
+
 

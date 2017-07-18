@@ -74,6 +74,21 @@ def pullDataFromOPT(filename,runNum):
 	opt_costFunc2 = opt_costFunc2[:-1]
 	opt_parameter2 = opt_parameter2[:-1]
 
+	
+	vmc_line = "("+vmc_method_tags+")"
+	vmc_line = vmc_line + "("+vmc_estimator+")"
+	vmc_line = vmc_line + "("+vmc_parameters+")"
+	vmc_line = vmc_line + "("+vmc_parameters+")"
+	vmc_line = vmc_line + "("+opt_loop1_qmc+")"
+	vmc_line = vmc_line + "("+opt_estimator1+")"
+	vmc_line = vmc_line + "("+opt_costFunc1+")"
+	vmc_line = vmc_line + "("+opt_parameter1+")"
+	vmc_line = vmc_line + "("+opt_loop2_qmc+")"
+	vmc_line = vmc_line + "("+opt_estimator2+")"
+	vmc_line = vmc_line + "("+opt_costFunc2+")"
+	vmc_line = vmc_line + "("+opt_parameter2+")"
+
+
 
 '''
 	print "id_num=",runNum
@@ -148,4 +163,10 @@ def pullDataFromDMC(filename,runNum):
    	print "dmc_estimator=",dmc_estimator
    	print "dmc_parameters=",dmc_parameters
         '''
+	dmc_line = "("+vmc_method_tags+")"
+	dmc_line =dmc_line + "("+vmc_estimator+")"
+	dmc_line =dmc_line + "("+vmc_parameters+")"
+	dmc_line =dmc_line + "("+dmc_method_tags+")"
+	dmc_line =dmc_line + "("+dmc_estimator+")"
+	dmc_line =dmc_line + "("+dmc_parameters+")"
 

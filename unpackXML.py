@@ -1,6 +1,57 @@
 # -*- coding: utf-8 -*-
 
-#def pullDataFromWFS(filename,runNum):
+def pullDataFromWFS(filename,runNum):
+	from lxml import etree
+
+	tree = etree.parse(filename)
+	wfs = tree.getroot()[0]
+
+	detset = ""
+	jastrow =""
+	## set default num determinants to 1 so we only need to update if its a multireference system
+	ndet=1
+	for child in wfs:
+		if child.tag =="determinantset":
+		for sub_child in child:
+			if sub_child.tag=="multideterminant":
+				optimize = sub_child.get("optimize")
+				for next_child in sub_child:
+					if next_child.tag=="detlist":
+						ndet=next_child.get("size")
+						cutoff=next_child.get("cutoff")
+		j2=False
+		j1=False
+		j3=False
+		elif child.tag=="jastrow":
+			if child.get("name")=="J2":
+				j2=True
+				j2_func = child.get("function")
+				j2_rcut = child[0].get("rcut")
+			elif child.get("name")=="J1":
+				j1=True
+				j1_func = child.get("function")
+				j1_rcut = child[0].get("rcut")
+			elif child.get("name")=="J3":
+				j3=True
+				j3_func = child.get("function")
+				j3_rcut = child[0].get("rcut")
+
+	detset = "(optimize="+optimize+",N_det="+ndet+",cutoff="+cutoff+")"
+	if j2:
+		jastrow = "(use_J2="+j2+",function="+j2_func+",rcut="+j2_rcut
+	else:
+		jastrow = "(use_J2="+j2
+	if j1:
+		jastrow = ",use_J1="+j1+",function="+j1_func+",rcut="+j1_rcut
+	else:
+		jastrow = ",use_J1="+j1
+	
+	if j3:
+		jastrow = ",use_J3="+j3+",function="+j3_func+",rcut="+j3_rcut+")"
+	else:
+		jastrow = ",use_J3="+j3+")"
+	
+
 #def pullDataFromPTCL(filename,runNum):
 def pullDataFromOPT(filename,runNum):
         from lxml import etree

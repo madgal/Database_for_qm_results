@@ -203,5 +203,9 @@ if __name__ == '__main__':
         add_qmc_input_metadata()
                        
 
-	print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
+	message = "Added energy to database"
+	#print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
+	os.system("git add db/g2.dump")
+	os.system("git commit -m \""+message+"\"")
+	os.system("git push")
     conn.commit()

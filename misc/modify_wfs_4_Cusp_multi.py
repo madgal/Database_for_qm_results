@@ -3,20 +3,24 @@
 import os 
 import lxml
 from lxml import etree
-os.system("cp FULLDIR/FILEROOT.wfs.xml FULLDIR/FILEROOT.wfs.xml_initial")
-myfile ="FULLDIR/FILEROOT.wfs.xml"
+import sys
+
+fileroot = sys.argv[1]
+myfile ="../"+fileroot+".wfs.xml"
+os.system("cp "+myfile+" " + myfile+"_initial")
 
 tree= etree.parse(myfile)
 root = tree.getroot()
 wavefunc = root[0]
 determinantset = wavefunc[0]
 
-
 sposet_up = determinantset[1]
 sposet_dn = determinantset[2]
-MyCuspUp="FULLDIR/CuspCorrection/spo-up.cuspInfo.xml"
+
+fulldir=os.getcwd()
+MyCuspUp=fulldir+"/spo-up.cuspInfo.xml"
 sposet_up.set("cuspInfo",MyCuspUp)
-MyCuspDn="FULLDIR/CuspCorrection/spo-dn.cuspInfo.xml"
+MyCuspDn=fulldir+"/spo-dn.cuspInfo.xml"
 sposet_dn.set("cuspInfo",MyCuspDn)
 
 j2Body= wavefunc[1]
@@ -38,5 +42,4 @@ f.close()
 
 os.system("mv " + tmpfile + " " + myfile)
 
-os.chdir("FULLDIR/CuspCorrection")
 os.system("./cusp.sh")

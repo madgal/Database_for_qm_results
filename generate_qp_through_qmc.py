@@ -88,6 +88,31 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
                 for line in newFile:
                         fileOut.write("%s" %line)
 
+	setup_template = "misc/setupQMCCalc.sh"
+	newfile=[]
+	with open(setup_template,"r") as fileIn:
+		for line in fileIn:
+			if "FILEROOT" in line:
+				line = line.replace("FILEROOT",fileroot)
+			newfile.append(line)
+
+	if  not(pp): # add cusp
+		newfile.append("## if Cusp Correction\n")
+		newfile.append("echo \"Running cusp correction\"\n")
+		newfile.append("cd CuspCorrection\n")
+		newfile.append("./modify_wfs_4_Cusp_multi.py "+fileroot+"\n")
+		newfile.append("cd../\n")
+	if multiDet: #setup cutoff directories
+		newfile.append("## if Multideterminants need to be tested for convergence\n")
+		newfile.append("echo \"Setting up cutoff directories\"\n")
+		newfile.append("./multiDet_convergence_setup.py\n")
+
+        newFilename = newDir+ "/setup_"+fileroot+".py"
+        with open(newFilename,"w") as fileOut:
+                for line in newFile:
+                        fileOut.write("%s" %line)
+
+
 
 def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp,optimize,xyz_file):
 	""" Make directories to look at the convergence of the energy as the cutoff increases"""

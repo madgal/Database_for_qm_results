@@ -64,6 +64,15 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body):
 
 	absfileroot = os.getcwd() + "/"+dirName + "/"+ fileroot
 	os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot,multidet)
+	
+	if multidet:
+		### this will call another program which will generate
+		### cutoff directories containing 
+		### optimization and DMC folders
+		os.system("./misc/generateCutoffDirs4QMC.py")
+	else:
+		### generate the DMC and Optimization folders
+		os.system("./misc/setupDMCFolder.py " + dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo)
 
 '''
 	### create the DMC folder
@@ -82,6 +91,7 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body):
 		os.system("./misc/setupCuspFolder.py ")
 
 	else:
+		## only modify the Opt.xml and DMC.xml files because the Cusp.xml is only generated for AE calcs.
 		os.system("./misc/modifyHamiltonians.py")
 
 '''

@@ -59,9 +59,9 @@ def conversion_and_qmcInput(path, submit_path,fileroot,pp,multiDet,noJastrow,Jas
 		filepath = directory + "/" + fileroot
 		if Jastrow3Body:
 			__generateOpt__(newDir,fileroot,fileroot,submit_path,directory,pp)
-			__optJ12__(newDir,submit_path,directory,fileroot,multi=False)
-			__optJ3__(newDir,submit_path,directory,fileroot)
-			__finishOpt__(newDir,submit_path,directory,fileroot)
+			__optJ12__(newDir,multi=False)
+			__optJ3__(newDir)
+			__finishOpt__(newDir)
 		if pp:
 	        	__grabPseudo_makeHam__(newDir,newDir,submit_path,directory,Jastrow3Body,xyz_file)
 
@@ -128,11 +128,11 @@ def __generateCutoff__(directory,fileroot,sub_path,baseName,reopt,usepp,optimize
 		__generateDMC__(thisDir,cutoffroot,fileroot,sub_path,local_baseName,usepp)
 		if optimize:
 			__generateOpt__(thisDir,cutoffroot,fileroot,sub_path,local_baseName,usepp)
-			__optJ12__(thisDir,sub_path,local_baseName,cutoffroot,multi=True)
+			__optJ12__(thisDir,multi=True)
 			if reopt:
-				__optCoeffsAndJastrows__(thisDir,sub_path,local_baseName,cutoffroot)
-			__optJ3__(thisDir,sub_path,local_baseName,cutoffroot)
-			__finishOpt__(thisDir,sub_path,local_baseName,cutoffroot)
+				__optCoeffsAndJastrows__(thisDir)
+			__optJ3__(thisDir)
+			__finishOpt__(thisDir)
 		if usepp:
 	        	__grabPseudo_makeHam__(thisDir,directory,sub_path,baseName,optimize,xyz_file)
 
@@ -180,23 +180,7 @@ def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
     else:
 	fileName = "modify_wfs_4_Cusp_single"
 
-    fulldir = 	 sub_path+"/"+baseName
-    dictionary = {"FULLDIR":fulldir,"FILEROOT":fileroot}
-
-    fileTemplate = "misc/" +fileName + ".py"
-    newFile=[]
-    with open(fileTemplate,"r") as fileIn:
-    	for line in fileIn:
-    		for key in dictionary:
-    			if key in line:
-    				line = line.replace(key,dictionary[key])
-	    	newFile.append(line)
-
-    newFilename = directory + "/CuspCorrection/"+fileName + ".py"
-    with open(newFilename,"w") as fileOut:
-	for line in newFile:
-		fileOut.write("%s" %line)
-
+    os.system("cp "+filename+" "+directory +"/CuspCorrection/modify_wfs_4_Cusp.py")
 
     os.system("cp misc/cusp.sh " +directory + "/CuspCorrection/cusp.sh") 
 
@@ -370,89 +354,20 @@ def __generateOpt__(directory,wfsFile,ptclFile,sub_path,baseName,usepp):
 
 
 
-def __optJ12__(directory,sub_path,baseName,fileroot,multi):
-
-    fulldir = 	 sub_path+"/"+baseName
-    dictionary = {"FULLDIR":fulldir,"FILEROOT":fileroot}
-
-    fileName= "optimize_1Body2Body"
-    fileTemplate = "misc/" +fileName + ".py"
-    newFile=[]
-    with open(fileTemplate,"r") as fileIn:
-    	for line in fileIn:
-    		for key in dictionary:
-    			if key in line:
-    				line = line.replace(key,dictionary[key])
-		if multi:
-	    		newFile.append(line)
-		elif not("multidet" in line):## make sure we arent tryingt to optimize a multideterminant with only 1det in wfs
-	    		newFile.append(line)
-			
-
-    newFilename = directory + "/Optimization/" + fileName + ".py"
-    with open(newFilename,"w") as fileOut:
-	for line in newFile:
-		fileOut.write("%s" %line)
-
+def __optJ12__(directory,multi):
+    if multi:
+	fileName= "optimize_1Body2Body_multi"
+    else:
+	fileName= "optimize_1Body2Body_single"
+    os.system("cp misc/"+filename+".py "+directory+"/Optimization/optimize_1Body2Body.py")
 	
-def __optCoeffsAndJastrows__(directory,sub_path,baseName,fileroot):
-    fulldir = 	 sub_path+"/"+baseName
-    dictionary = {"FULLDIR":fulldir,"FILEROOT":fileroot}
+def __optCoeffsAndJastrows__(directory):
+    os.system("cp misc/optimize_coeffs.py "+directory + "/Optimization/optimize_coeffs.py")
 
-    fileName= "optimize_coeffs"
-    fileTemplate = "misc/" +fileName + ".py"
-    newFile=[]
-    with open(fileTemplate,"r") as fileIn:
-    	for line in fileIn:
-    		for key in dictionary:
-    			if key in line:
-    				line = line.replace(key,dictionary[key])
-	    	newFile.append(line)
-			
+def __optJ3__(directory):
+    os.system("cp misc/optimize_3Body.py "+directory + "/Optimization/optimize_3Body.py")
 
-    newFilename = directory + "/Optimization/" + fileName + ".py"
-    with open(newFilename,"w") as fileOut:
-	for line in newFile:
-		fileOut.write("%s" %line)
-
-def __optJ3__(directory,sub_path,baseName,fileroot):
-    fulldir = 	 sub_path+"/"+baseName
-    dictionary = {"FULLDIR":fulldir,"FILEROOT":fileroot}
-
-    fileName= "optimize_3Body"
-    fileTemplate = "misc/" +fileName + ".py"
-    newFile=[]
-    with open(fileTemplate,"r") as fileIn:
-    	for line in fileIn:
-    		for key in dictionary:
-    			if key in line:
-	    			line = line.replace(key,dictionary[key])
-	    	newFile.append(line)
-			
-
-    newFilename = directory + "/Optimization/" + fileName + ".py"
-    with open(newFilename,"w") as fileOut:
-	for line in newFile:
-		fileOut.write("%s" %line)
-
-def __finishOpt__(directory,sub_path,baseName,fileroot):
-    fulldir = 	 sub_path+"/"+baseName
-    dictionary = {"FULLDIR":fulldir,"FILEROOT":fileroot}
-
-    fileName= "optimize_finish"
-    fileTemplate = "misc/" +fileName + ".py"
-    newFile=[]
-    with open(fileTemplate,"r") as fileIn:
-    	for line in fileIn:
-    		for key in dictionary:
-    			if key in line:
-    				line = line.replace(key,dictionary[key])
-	    	newFile.append(line)
-			
-
-    newFilename = directory + "/Optimization/" + fileName + ".py"
-    with open(newFilename,"w") as fileOut:
-	for line in newFile:
-		fileOut.write("%s" %line)
+def __finishOpt__(directory):
+    os.system("cp misc/optimize_finsih.py "+directory + "/Optimization/optimize_finsih.py")
 
 

@@ -7,15 +7,12 @@ try:
 	import sys
 
 	fileroot = sys.argv[1]
-        myfile =fileroot+".wfs.xml"
+        myfile ="../"+fileroot+".wfs.xml"
 	os.system("cp "+ myfile +" " +myfile + "_BAK")
 
 	tree= etree.parse(myfile)
 	root = tree.getroot()
 	wavefunc = root[0]
-	determinantset = wavefunc[0]
-	multidet = determinantset[3]
-	multidet.set("optimize","no")
 	
 	j2Body= wavefunc[1]
 	j1Body= wavefunc[2]

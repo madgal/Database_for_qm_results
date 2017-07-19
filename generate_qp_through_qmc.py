@@ -201,11 +201,11 @@ def __generateCusp__(directory,fileroot,sub_path,baseName,multiDet):
 
 
     if multiDet:
-	fileName = "modify_wfs_4_Cusp_multi"
+	fileName = "modify_wfs_4_Cusp_multi.py"
     else:
-	fileName = "modify_wfs_4_Cusp_single"
+	fileName = "modify_wfs_4_Cusp_single.py"
 
-    os.system("cp "+filename+" "+directory +"/CuspCorrection/modify_wfs_4_Cusp.py")
+    os.system("cp misc/"+fileName+" "+directory +"/CuspCorrection/modify_wfs_4_Cusp.py")
 
     os.system("cp misc/cusp.sh " +directory + "/CuspCorrection/cusp.sh") 
 
@@ -380,19 +380,23 @@ def __generateOpt__(directory,wfsFile,ptclFile,sub_path,baseName,usepp):
 
 
 def __optJ12__(directory,multi):
+    import os
     if multi:
 	fileName= "optimize_1Body2Body_multi"
     else:
 	fileName= "optimize_1Body2Body_single"
-    os.system("cp misc/"+filename+".py "+directory+"/Optimization/optimize_1Body2Body.py")
+    os.system("cp misc/"+fileName+".py "+directory+"/Optimization/optimize_1Body2Body.py")
 	
 def __optCoeffsAndJastrows__(directory):
+    import os
     os.system("cp misc/optimize_coeffs.py "+directory + "/Optimization/optimize_coeffs.py")
 
 def __optJ3__(directory):
+    import os
     os.system("cp misc/optimize_3Body.py "+directory + "/Optimization/optimize_3Body.py")
 
 def __finishOpt__(directory):
-    os.system("cp misc/optimize_finsih.py "+directory + "/Optimization/optimize_finsih.py")
+    import os
+    os.system("cp misc/optimize_finish.py "+directory + "/Optimization/optimize_finish.py")
 
 

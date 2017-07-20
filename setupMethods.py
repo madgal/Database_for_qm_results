@@ -1,4 +1,4 @@
-def useQuantumPackageMethod(filename,nojastrow,use3Body):
+def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 	'''
 	 The function that will take the dump file from quantum package
 		 and generate the needed files to run QMC with qmcpack
@@ -53,11 +53,13 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body):
 		dirName = dirName +"MultiDet"
 	else:
 		dirName = dirName +"1Det"
+	if reopt:
+		dirName = dirName + "_reopt"
 
 	
 	os.mkdir(dirName)
 	local_fileroot = dirName +"/"+fileroot
-	print "The input files will be place in ",local_fileroot
+	print "The input files will be place in ",local_fileroot,".ext"
 
 	os.system("./converter_independent.py "+convertType+" "+ filename+" "+ local_fileroot+" "+ flags)
 
@@ -73,6 +75,7 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body):
 	else:
 		### generate the DMC and Optimization folders
 		os.system("./misc/setupDMCFolder.py " + dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo)
+		os.system("./misc/setupOptFolder.py"+ dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo)
 
 '''
 	### create the DMC folder

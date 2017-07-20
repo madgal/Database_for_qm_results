@@ -17,7 +17,6 @@ if usepp:
 else:
     template_Name = "DMC_AE.xml"
     
-
 DMC_dir = outerDir + "/DMC"
 if not(os.path.isdir(DMC_dir)):
     os.mkdir(DMC_dir)
@@ -48,3 +47,5 @@ f.write(etree.tostring(root,pretty_print=True))
 f.close()
 
 os.system("mv " + tmpfile + " " + myFile)
+
+os.system("cp misc/bgq-DMC.sh "+DMC_dir)

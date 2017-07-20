@@ -12,8 +12,10 @@ Usage:
 			[--3BodyJ=<True,False>]
 
 Example of use:
-	./setup_QMC_calculation.py setup 
+	./setup_QMC_calculation.py setup  --filename=qp_dumpfilename --method=QP
 """
+
+### defaults to adding 3BodyJ
 
 version="0.0.1"
 import os
@@ -36,8 +38,15 @@ if __name__ == '__main__':
 	filename= arguments["--filename"]
 	method  = arguments["--method"]
 
-	nojastrow = arguments["--noJastrow"]
-	use3Body = arguments["--3BodyJ"]
+	if arguments["--noJastrow"]:
+		nojastrow = arguments["--noJastrow"]
+	else:
+		nojastrow = False
+
+	if arguments["--3BodyJ"]:
+		use3Body = arguments["--3BodyJ"]
+	else:
+		use3Body = True
 
 	from setupMethods import *
 	if method=="QP":

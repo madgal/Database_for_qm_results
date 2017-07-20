@@ -8,7 +8,8 @@ from lxml import etree
 import sys
 
 outerDir=sys.argv[1]
-info = outerDir.split("_")
+info = outerDir.split("/")
+info = info.split("_")
 if len(info)==3:
 	[Jtype, multi,reopt] = info
 	reopt = reopt=="reopt"
@@ -20,9 +21,11 @@ Jtype = Jtype.replace("Jastrow","")
 multi = multi=="MultiDet"
 
 if Jtype!="No":
-	fileroot=sys.argv[2]
-	filename = sys.argv[3]
-	usepp = sys.argv[4]
+	ptclfileroot=sys.argv[2]
+	wfsfileroot=sys.argv[3]
+	filename = sys.argv[4]
+	usepp = sys.argv[5]
+	elementList = sys.argv[6]
 
 	if usepp:
 	    template_Name = "Opt_PP.xml"
@@ -39,15 +42,28 @@ if Jtype!="No":
 	tree = etree.parse(myFile)
 	root = tree.getroot()
 
+	if usepp:
+		hamilt   = root[5] 
+		pairPot1 = hamilt[0]
+	
+		count=0
+		for el in elementList:
+			pairPot1.append(etree.Element("pseudo"))
+			pseudo = pairPot1[count]
+			pseudo.set("elementType",el)
+			el_path =outerDir+ "/"+el+".BFD.xml"
+			pseudo.set("href",el_path)
+			count+=1
+	
 	project = root[0]
 	icld_ptcl = root[2]
 	icld_wfs = root[3]
 
-	projName = "Opt-"+wfsFile
+	projName = "Opt-"+filename
 	project.set("id",projName)
 
-	ptclFile = fileroot +".ptcl.xml"
-	wfsFile =  fileroot +".wfs.xml"
+	ptclFile = ptclfileroot +".ptcl.xml"
+	wfsFile =  wfsfileroot +".wfs.xml"
 	icld_ptcl.set("href",ptclFile)
 	icld_wfs.set("href",wfsFile)
 
@@ -65,8 +81,6 @@ if Jtype!="No":
 	### Generate bgq-DMC.sh
 	################################################
 	os.system("cp misc/bgq-Opt.sh "+directory+"/Optimization/")
-	
-
 
 	if multi:
 	    fileName= "optimize_1Body2Body_multi"

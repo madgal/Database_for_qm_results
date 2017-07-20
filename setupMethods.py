@@ -5,6 +5,8 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 	'''
 	import os,sys
 
+	readEl=False
+	elementList=[]
 	numDetMatch = "Number of determinants"
 	dirName =""
 	flags=""
@@ -31,6 +33,16 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 			elif "multi_det" in line:
 				line=line.split(" ")
 				multidet=line[1][0].lower()=="t"
+			elif "Atomic coord in Bohr" in line:
+				readEl=True
+        
+			elif readEl and ("BEGIN_BASIS_SET" in line):
+				break
+        
+			elif readEl:
+				newEl =line.split(" ")[0]
+				if newEl not in elementList:
+					elementList.append(newEl)
 
 
 	if convertType !="QP":
@@ -61,40 +73,20 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 	local_fileroot = dirName +"/"+fileroot
 	print "The input files will be place in ",local_fileroot,".ext"
 
-	os.system("./converter_independent.py "+convertType+" "+ filename+" "+ local_fileroot+" "+ flags)
+	os.system("./misc/converter_independent.py "+convertType+" "+ filename+" "+ local_fileroot+" "+ flags)
 
 
 	absfileroot = os.getcwd() + "/"+dirName + "/"+ fileroot
-	os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot,multidet)
+	if not(doPseudo):
+		os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
 	
 	if multidet:
 		### this will call another program which will generate
 		### cutoff directories containing 
 		### optimization and DMC folders
-		os.system("./misc/generateCutoffDirs4QMC.py")
+		os.system("./misc/generateCutoffDirs4QMC.py" + dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo + " " +elementList)
 	else:
 		### generate the DMC and Optimization folders
-		os.system("./misc/setupDMCFolder.py " + dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo)
-		os.system("./misc/setupOptFolder.py"+ dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo)
+		os.system("./misc/setupDMCFolder.py " + dirName + " " + absfileroot + " " + absfileroot+" " +fileroot + "  " +doPseudo + " " +elementList)
+		os.system("./misc/setupOptFolder.py "+ dirName + " " + absfileroot + " " + absfileroot+" " +fileroot + "  " +doPseudo + " " +elementList)
 
-'''
-	### create the DMC folder
-	### create this first because if the system uses a pseudopotential
-	### we will modify the hamiltonian in later steps
-	os.system("./misc/setupDMCFolder.py " +dirName +" "+ fileroot)
-	
-
-	### setup the Optimization folder if needed
-	if not(nojastrow):
-		### must optimize jastrows
-		os.system("./misc/setupOptFolder.py ")
-		
-	if not(doPseudo):
-		### must create CuspCorrection folder
-		os.system("./misc/setupCuspFolder.py ")
-
-	else:
-		## only modify the Opt.xml and DMC.xml files because the Cusp.xml is only generated for AE calcs.
-		os.system("./misc/modifyHamiltonians.py")
-
-'''

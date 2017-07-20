@@ -10,9 +10,10 @@ Usage:
 			--method=<QP>
 			[--noJastrow=<True,False>]
 			[--3BodyJ=<True,False>]
+			[--reoptimizeCoeffs=<True,False>]
 
 Example of use:
-	./setup_QMC_calculation.py setup  --filename=qp_dumpfilename --method=QP
+	./setup_QMC_calculation.py setup  --filename=qp_dumpfilename --method=QP --reoptimizeCoeffs=True
 """
 
 ### defaults to adding 3BodyJ
@@ -39,15 +40,19 @@ if __name__ == '__main__':
 	method  = arguments["--method"]
 
 	if arguments["--noJastrow"]:
-		nojastrow = arguments["--noJastrow"]
+		nojastrow = arguments["--noJastrow"]=="True"
 	else:
 		nojastrow = False
 
 	if arguments["--3BodyJ"]:
-		use3Body = arguments["--3BodyJ"]
+		use3Body = arguments["--3BodyJ"]=="True"
 	else:
 		use3Body = True
+	if arguments["--reoptimizeCoeffs"]:
+		reopt = arguments["--reoptimizeCoeffs"]=="True"
+	else:
+		reopt=False
 
 	from setupMethods import *
 	if method=="QP":
-		setupMethods.useQuantumPackageMethod(filename,nojastrow,use3Body)
+		setupMethods.useQuantumPackageMethod(filename,nojastrow,use3Body,reopt)

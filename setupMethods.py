@@ -73,12 +73,15 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 	local_fileroot = dirName +"/"+fileroot
 	print "The input files will be place in ",local_fileroot,".ext"
 
-	os.system("./misc/converter_independent.py "+convertType+" "+ filename+" "+ local_fileroot+" "+ flags)
-
+	#os.system("./misc/converter_independent.py "+convertType+" "+ filename+" "+ local_fileroot+" "+ flags)
+	from misc/converter_independent import *
+	do_conversion(convertType,filename,local_fileroot,flags)
 
 	absfileroot = os.getcwd() + "/"+dirName + "/"+ fileroot
 	if not(doPseudo):
-		os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
+		#os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
+		from misc/setupCuspCorrection import *
+		generate_CuspDir(dirName,absfileroot,multidet)
 	
 	if multidet:
 		### this will call another program which will generate

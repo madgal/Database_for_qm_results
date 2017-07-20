@@ -19,6 +19,6 @@ ezfio.set_integrals_monoelec_disk_access_mo_one_integrals("Write")
 ### Now run the SCF calculation\n"
 
 if mpirun.lower()[0]=="t":
-   os.system("./qp-mpirun.sh SCF"+NAME+".ezfio/ > " +NAME+".SCF.out") 
+   os.system("./qp-mpirun.sh SCF "+NAME+".ezfio/ > " +NAME+".SCF.out") 
 else:
    os.system("qp_run SCF "+NAME+".ezfio/ > " +NAME+".SCF.out")

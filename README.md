@@ -41,6 +41,11 @@ Output files include:
 	
 	Note that if NDET is not specified then the quantum package default of 10000 is used. 
 
+	THE OPTIONS:
+		There are two options for generation, from scratch (QP through QMC) or from a file that is ready for conversion (QP finished we have a dumpfile). 
+
+		setup_QMC_calculation takes a file ready for conversion, and a few arguments, to generate the needed files and directories.
+
 To use, the database may need to be reinitialized. 
 On Linux:
 	

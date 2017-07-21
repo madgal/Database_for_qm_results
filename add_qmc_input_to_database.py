@@ -7,7 +7,10 @@ You can add_input
 Usage:
   add_qmc_input_to_database.py (-h | --help)
   add_qmc_input_to_database.py add_input --path=<path> --wfs_flnm=<name_of_wavefunction_xml_file> --ptcl_flnm=<name_of_particle_xml_file> --opt_flnm=<name_of_optimization_xml_file> --dmc_flnm=<name_of_dmc_xml_file>
-		
+				  	      [--method=<wfs_method_name>...]
+                                              [--basis=<basis_name>...]
+                                              [--geo=<geometry_name>...]
+                                              [--comments=<comments>...]
 
 """
 
@@ -58,6 +61,28 @@ if __name__ == '__main__':
         ptclname = path +"/"+arguments["--ptcl_flnm"]
         optname  = path +"/"+arguments["--opt_flnm"]
         dmcname  = path +"/"+arguments["--dmc_flnm"]
+	
+	if arguments["--method"]:
+		wfs_method = arguments["--method"]
+	else:
+		wfs_method=""
+	if arguments["--basis"]:
+		basis = arguments["--basis"]
+	else:
+		basis=""
+	if arguments["--geo"]:
+		geometry = arguments["--geo"]
+	else:
+		geometry=""
+	if arguments["--comments"]:
+		comments = arguments["--comments"]
+	else:
+		comments=""
+	
+	additionalInfo = [wfs_method,basis,geometry,comments]
+
+
+
 
         from unpackXML import *
 
@@ -71,7 +96,7 @@ if __name__ == '__main__':
 
         files4Database = [optFile,dmcFile,wfsFile,ptclFile]
 
-        add_qmc_input_metadata(wfsInfo,files4Database)
+        add_qmc_input_metadata(wfsInfo,files4Database,additionalInfo)
 
         conn.commit()
         ## Now grab the energy from the DMC *scalar.dat file

@@ -331,7 +331,7 @@ def add_energies_cispi(run_list, geo_list, basis_list, path, tail,
 
             index += 1
 
-def add_qmc_input_metadata(wfsInfo,filesForInput,debug=False):
+def add_qmc_input_metadata(wfsInfo,filesForInput,additionalInfo,debug=False):
     # Add input files to database so that others can verify/recreate results
     print "Add qmc info"
     
@@ -340,6 +340,7 @@ def add_qmc_input_metadata(wfsInfo,filesForInput,debug=False):
 
     ## input the metadata for other scientists benefits
     [cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list]= wfsInfo
+    [wfs_method,basis,geometry,comments] = additionalInfo
 
     run_id = 10
     id_ =  10
@@ -349,8 +350,14 @@ def add_qmc_input_metadata(wfsInfo,filesForInput,debug=False):
     if not debug:
         try:
             c.execute('''INSERT OR REPLACE INTO
-                        qmc_input_tab(id,name,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list])
+                        qmc_input_tab(id,name,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3,wfs_method,basis,geometry,comments)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list,wfs_method,basis,geometry,comments])
+
+            c.execute('''INSERT OR REPLACE INTO
+                        qmc_input_tab( id, name , optfile, dmcfile, wfsfile, ptclfile, cuspCorrection, multideterminant, J2, J1, J3, Ndet, reoptCoeff, coeffCutoff, wfs_method, basis, geometry,comments)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,j2list,j1list,j3list,ndet,reoptCoeff,cutoff,wfs_method,basis,geometry,comments])
+
+
 
             conn.commit()
         except Exception as err:

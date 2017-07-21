@@ -194,13 +194,15 @@ if __name__ == '__main__':
         from unpackXML import *
 
         runNum = getNum()
-        [wfsFile]  	   =pullDataFromWFS(wfsname,runNum)
+        [wfsFile,wfsInfo]   =pullDataFromWFS(wfsname,runNum)
         [ptclFile]	   =pullDataFromPTCL(ptclname,runNum)
         [optFile]	   =pullDataFromOPT(optname,runNum)
         [dmcFile,projectId]=pullDataFromDMC(dmcname,runNum)
 	
 
-        add_qmc_input_metadata()
+	files4Database = [optFile,dmcFile,wfsFile,ptclFile]
+
+        add_qmc_input_metadata(wfsInfo,files4Database)
 
 	### Now grab the energy from the DMC *scalar.dat file
                        

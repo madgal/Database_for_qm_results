@@ -6,6 +6,12 @@ def pullDataFromWFS(filename,runNum):
 	tree = etree.parse(filename)
 	wfs = tree.getroot()[0]
 
+	cuspCorrection="No"
+	multidet="NO"
+	ndet="1"
+	reoptCoeff="no"
+	cutoff="0.01"
+	
 	for child in wfs:
                 if child.tag=="determinantset":
                         detSet  = child
@@ -14,9 +20,9 @@ def pullDataFromWFS(filename,runNum):
                         for subChild in detSet:
                                 if subChild.tag=="multideterminant":
                                         multidet="YES"
-                                        mutlidet=multidet+",optimize="+subChild.get("optimize")
-                                        multidet=multidet +",ndet="+subChild[0].get("size")
-                                        multidet=multidet +",cutoff="+subChild[0].get("cutoff")
+                                        reoptCoeff = subChild.get("optimize")
+                                        ndet=subChild[0].get("size")
+                                        cutoff=subChild[0].get("cutoff")
                 elif child.tag=="jastrow" and child.get("name")=="J2":
                         j2list = "(function="+child.get("function") + ")"
 
@@ -47,8 +53,8 @@ def pullDataFromWFS(filename,runNum):
                                 j3list = j3list +"coefficients=\""      + subChild[0].text+"\")"
 
 	wfsFile = etree.tostring(wfs)
-
-	neededInfo = [cuspCorrection,multidet,j2list,j1list,j3list]
+	
+	neededInfo = [cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list]
 
 	return [neededInfo,wfsFile]
 

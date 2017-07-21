@@ -339,7 +339,7 @@ def add_qmc_input_metadata(wfsInfo,fileForInput):
     [optFile,dmcFile,wfsFile,ptclFile] = filesForInput
 
     ## input the metadata for other scientists benefits
-    [cuspCorrection,multidetInfo,j2Info,j1Info,j3Info] = wfsInfo
+    [cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list]= wfsInfo
 
     id_ = get_mol_id(name)
 
@@ -348,8 +348,8 @@ def add_qmc_input_metadata(wfsInfo,fileForInput):
     if not debug:
         try:
             c.execute('''INSERT OR REPLACE INTO
-                        qmc_input_tab(run_id,id,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,J2,J1,J3)
-                        VALUES (?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile])
+                        qmc_input_tab(run_id,id,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3)
+                        VALUES (?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list])
 
             conn.commit()
         except:

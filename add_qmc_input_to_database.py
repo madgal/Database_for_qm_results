@@ -194,16 +194,18 @@ if __name__ == '__main__':
         from unpackXML import *
 
         runNum = getNum()
-        pullDataFromWFS(wfsname,runNum)
-        pullDataFromPTCL(ptclname,runNum)
-        pullDataFromOPT(optname,runNum)
-        pullDataFromDMC(dmcname,runNum)
+        [wfsFile]  	   =pullDataFromWFS(wfsname,runNum)
+        [ptclFile]	   =pullDataFromPTCL(ptclname,runNum)
+        [optFile]	   =pullDataFromOPT(optname,runNum)
+        [dmcFile,projectId]=pullDataFromDMC(dmcname,runNum)
 	
 
         add_qmc_input_metadata()
+
+	### Now grab the energy from the DMC *scalar.dat file
                        
 
-	message = "Added energy to database"
+	message = "Added input files and energy to database"
 	#print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
 	os.system("git add db/g2.dump")
 	os.system("git commit -m \""+message+"\"")

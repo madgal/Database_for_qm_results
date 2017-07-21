@@ -49,7 +49,16 @@ def pullDataFromWFS(filename,runNum):
 
 	
 
-#def pullDataFromPTCL(filename,runNum):
+def pullDataFromPTCL(filename,runNum):
+	from lxml import etree
+
+	tree = etree.parse(filename)
+	ptclset = tree.getroot()[0]
+
+	ptclfile = etree.tostring(ptclset)
+	return [ptclfile]
+
+
 def pullDataFromOPT(filename,runNum):
 
 
@@ -63,6 +72,7 @@ def pullDataFromOPT(filename,runNum):
 	root = tree.getroot()
 	
 	optFile = etree.tostring(root)
+	return [optFile]
 
 
 def pullDataFromDMC(filename,runNum):
@@ -76,3 +86,7 @@ def pullDataFromDMC(filename,runNum):
 	root = tree.getroot()
 
 	dmcFile = etree.tostring(root)
+	project = root[0]
+	scalarDatfilename =project.set("id")
+	
+	return [dmcFile,scalarDatfilename]

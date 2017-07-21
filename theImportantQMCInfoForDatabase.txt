@@ -1,0 +1,28 @@
+From *wfs.xml:
+
+	number of determinants
+	cutoff value
+	was cusp correction used
+	was pseudopotential used (add to database as eithe "FALSE" or "NAME")
+	were coefficients reoptimized
+	jastrow coefficients
+	jastrow function
+	jastrow rcut
+
+From *ptcl.xml:
+
+
+From Opt.xml:
+
+From DMC.xml:
+
+#####################################33
+For any information that is not present or has not been used
+add to the database as "FALSE"
+
+Example:
+	First calculation with pseudopotential
+		-> add to database as pseudopotential ="BFD"
+	Second calculation without psedupotential
+		-> add to database as pseudopotentail ="FALSE"
+	

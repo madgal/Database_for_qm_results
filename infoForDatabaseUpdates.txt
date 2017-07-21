@@ -1,0 +1,4 @@
+To list the table columns: .schema <table_name>
+
+To add a column: 	   ALTER TABLE <table_name> ADD COLUMN <column_name> TEXT;
+

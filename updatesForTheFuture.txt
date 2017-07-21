@@ -1,0 +1,16 @@
+1) Make everything callable like a software package and not pregenerated scripts
+
+2) Create a permanent path to the database on mira and/or vesta file system via a git clone 
+	2a) Give other people write access to the file 
+	2b) Create a script that automatically pushes to git after every database update
+		--- use github webhooks????
+
+3) Now that we are storing the qmc files as strings, figure out the best way to add them into the database
+	-> make sure to keep them connected with the energies
+	-> also keep them connected to the parameters that will/can be queried 
+
+4) Grabbing info about the wavefunction and particleset from the DMC.xml and/or Opt.xml
+	-> Also how do we get the basis set from these???
+
+5) Determin how to grab the location of the necessarcy qmcpack binaries and pseudopotential libraries
+

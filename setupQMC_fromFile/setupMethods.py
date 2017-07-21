@@ -116,11 +116,8 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 						 str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
 				os.system(trypath+"setupOptFolder.py "+ str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" "+
 						 str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
-				print "File executed, " , trypath
 				filePath = trypath
 				break
-			else:
-				print "File not found in " ,trypath,", so trying again"
 	if not(doPseudo):
 		#os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
 		print "This is an all electron calculation so the Cusp correction is being added"

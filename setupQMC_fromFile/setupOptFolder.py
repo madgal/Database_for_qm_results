@@ -51,6 +51,12 @@ if Jtype!="No":
 	if usepp:
 		hamilt   = root[5] 
 		pairPot1 = hamilt[0]
+
+		## remove the bracket from the beginning and end then 
+		## parse by comma to get it back into list format
+		elementList = elementList.replace("[","")
+		elementList = elementList.replace("]","")
+		elementList = elementList.split(",")
 	
 		count=0
 		for el in elementList:

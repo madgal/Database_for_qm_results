@@ -4,7 +4,6 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 		 and generate the needed files to run QMC with qmcpack
 	'''
 	import os,sys
-	print sys.path
 
 	readEl=False
 	elementList=[]
@@ -85,12 +84,7 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 	print "Finished Conversion"
 
 	absfileroot = os.getcwd() + "/"+dirName + "/"+ fileroot
-	if not(doPseudo):
-		#os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
-		print "This is an all electron calculation so the Cusp correction is being added"
-		import setupCuspCorrection 
-		setupCuspCorrection.generate_CuspDir(dirName,absfileroot,multidet)
-	
+
 
 	### the files should be in one of these two paths which we appended 
 	### so that we could find the files when we executed them outside the
@@ -103,24 +97,34 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 		### cutoff directories containing 
 		### optimization and DMC folders
 		for trypath in sys.path:
-			try: 
-				os.system("."+trypath+"generateCutoffDirs4QMC.py" + str(dirName) + " " + str(absfileroot) + " " +str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
+			if os.path.exists(trypath+"generateCutoffDirs4QMC.py"):
+				os.system(trypath+"generateCutoffDirs4QMC.py " + str(dirName) + " " + str(absfileroot) + " "+
+						 str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
 				
-			except Exception:
-				print "File not found in " ,trypath,", so trying again"
-			else:
 				print "File executed"
+				filePath = trypath
 				break
+			else:
+				print "File not found in " ,trypath,", so trying again"
 		
 	else:
 		print "Single reference system"
 		### generate the DMC and Optimization folders
 		for trypath in sys.path:
 			if os.path.exists(trypath+"setupDMCFolder.py") and os.path.exists(trypath+"setupOptFolder.py"):
-				os.system(trypath+"setupDMCFolder.py " + str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" " +str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
-				os.system(trypath+"setupOptFolder.py "+ str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" " +str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
+				os.system(trypath+"setupDMCFolder.py " + str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" "+
+						 str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
+				os.system(trypath+"setupOptFolder.py "+ str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" "+
+						 str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
 				print "File executed, " , trypath
+				filePath = trypath
 				break
 			else:
 				print "File not found in " ,trypath,", so trying again"
+	if not(doPseudo):
+		#os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
+		print "This is an all electron calculation so the Cusp correction is being added"
+		import setupCuspCorrection 
+		setupCuspCorrection.generate_CuspDir(dirName,absfileroot,multidet,filePath)
+	
 	print "setupMethod.py is done"

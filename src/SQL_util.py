@@ -331,7 +331,7 @@ def add_energies_cispi(run_list, geo_list, basis_list, path, tail,
 
             index += 1
 
-def add_qmc_input_metadata(wfsInfo,fileForInput):
+def add_qmc_input_metadata(wfsInfo,filesForInput,debug=False):
     # Add input files to database so that others can verify/recreate results
     print "Add qmc info"
     
@@ -341,20 +341,21 @@ def add_qmc_input_metadata(wfsInfo,fileForInput):
     ## input the metadata for other scientists benefits
     [cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list]= wfsInfo
 
-    id_ = get_mol_id(name)
+    run_id = 10
+    id_ =  10
 
-    print name, run_id, id_
+    print run_id, id_
 
     if not debug:
         try:
             c.execute('''INSERT OR REPLACE INTO
-                        qmc_input_tab(run_id,id,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3)
-                        VALUES (?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list])
+                        qmc_input_tab(id,name,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list])
 
             conn.commit()
-        except:
-            raise Exception('Cannot add to the db')
-
+        except Exception as err:
+            #raise Exception('Cannot add to the db')
+            print err
 
 # ______                         _
 # |  ___|                       | |

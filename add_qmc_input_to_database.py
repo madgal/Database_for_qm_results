@@ -13,9 +13,9 @@ Usage:
 
 version = "0.0.2"
 
-import sys
 
 try:
+    import sys,os
     from src.docopt import docopt
     #from src.SQL_util import add_or_get_run, get_mol_id
     from src.SQL_util import add_qmc_input_metadata
@@ -73,12 +73,12 @@ if __name__ == '__main__':
 
         add_qmc_input_metadata(wfsInfo,files4Database)
 
+        conn.commit()
         ## Now grab the energy from the DMC *scalar.dat file
                            
 
         message = "Added input files and energy to database"
         #print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
-        os.system("git add db/g2.dump")
-        os.system("git commit -m \""+message+"\"")
-        os.system("git push")
-        conn.commit()
+        #os.system("git add db/g2.dump")
+        #os.system("git commit -m \""+message+"\"")
+        #os.system("git push")

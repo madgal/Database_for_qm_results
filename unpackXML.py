@@ -11,6 +11,9 @@ def pullDataFromWFS(filename,runNum):
 	ndet="1"
 	reoptCoeff="no"
 	cutoff="0.01"
+	j2list=""
+	j1list=""
+	j3list=""
 	
 	for child in wfs:
                 if child.tag=="determinantset":
@@ -99,6 +102,6 @@ def pullDataFromDMC(filename,runNum):
 
 	dmcFile = etree.tostring(root)
 	project = root[0]
-	scalarDatfilename =project.set("id")
+	scalarDatfilename =project.get("id")
 	
 	return [dmcFile,scalarDatfilename]

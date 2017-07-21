@@ -331,9 +331,15 @@ def add_energies_cispi(run_list, geo_list, basis_list, path, tail,
 
             index += 1
 
-def add_qmc_input_metadata():
+def add_qmc_input_metadata(wfsInfo,fileForInput):
     # Add input files to database so that others can verify/recreate results
     print "Add qmc info"
+    
+    # input the files for recreation
+    [optFile,dmcFile,wfsFile,ptclFile] = filesForInput
+
+    ## input the metadata for other scientists benefits
+    [cuspCorrection,multidetInfo,j2Info,j1Info,j3Info] = wfsInfo
 
     id_ = get_mol_id(name)
 
@@ -342,14 +348,12 @@ def add_qmc_input_metadata():
     if not debug:
         try:
             c.execute('''INSERT OR REPLACE INTO
-                        qmc_input_tab(run_id,id)
-                        VALUES (?,?,?,?,?,?)''', [run_id, id_])
+                        qmc_input_tab(run_id,id,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,J2,J1,J3)
+                        VALUES (?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile])
 
             conn.commit()
         except:
             raise Exception('Cannot add to the db')
-
-
 
 
 # ______                         _
@@ -403,9 +407,3 @@ def get_g09(geo, ele, only_neutral=True):
         g09_file_format.append(line)
     g09_file_format.append("\n\n\n")
     return "\n".join(map(str, g09_file_format))
-
-def get_qmc_input_metadata():
-    # Retrieve input files from database either for starting a new calcualtion or verifying/recreating results
-    print "Get qmc info"
-
-

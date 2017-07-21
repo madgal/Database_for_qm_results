@@ -3,7 +3,6 @@
 queue=default
 acct=PSFMat
 time=60
-EMAIL="galbraithm@duq.edu"
 
 
 
@@ -21,4 +20,4 @@ title=bgq.DMC-QP-HF-${mode}_p${nodes}x${nthreads}.`date +"%m-%d-%y_%H%M"`
 qmcin=$intemplate
 qmcout=${title}
 
-qsub -A $acct -M $EMAIL -q $queue -n $nodes -t $time -O ${qmcout} --mode $mode --env BG_SHAREDMEMSIZE=32:OMP_NUM_THREADS=${nthreads} $bindir/$bin $qmcin
+qsub -A $acct -q $queue -n $nodes -t $time -O ${qmcout} --mode $mode --env BG_SHAREDMEMSIZE=32:OMP_NUM_THREADS=${nthreads} $bindir/$bin $qmcin

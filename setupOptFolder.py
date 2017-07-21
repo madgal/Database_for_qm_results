@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
+
 import os
 ################################################
 #### Generate : Opt.xml
@@ -9,7 +12,9 @@ import sys
 
 outerDir=sys.argv[1]
 info = outerDir.split("/")
+info = info[len(info)-1]
 info = info.split("_")
+#print info
 if len(info)==3:
 	[Jtype, multi,reopt] = info
 	reopt = reopt=="reopt"
@@ -26,6 +31,7 @@ if Jtype!="No":
 	filename = sys.argv[4]
 	usepp = sys.argv[5]
 	elementList = sys.argv[6]
+	filePath = sys.argv[7]
 
 	if usepp:
 	    template_Name = "Opt_PP.xml"
@@ -35,8 +41,8 @@ if Jtype!="No":
 	Opt_dir = outerDir + "/Optimization"
 	if not(os.path.isdir(Opt_dir)):
 	    os.mkdir(Opt_dir)
-	os.system("cp misc/"+template_Name+" " +Opt_dir+"/Opt.xml")
-	os.system("cp utils/plot_OptProg.py " +Opt_dir)
+	os.system("cp " + filePath +"misc/"+template_Name+" " +Opt_dir+"/Opt.xml")
+	os.system("cp " + filePath +"utils/plot_OptProg.py " +Opt_dir)
 
 	myFile = Opt_dir+"/Opt.xml"
 	tree = etree.parse(myFile)
@@ -80,18 +86,18 @@ if Jtype!="No":
 	################################################
 	### Generate bgq-DMC.sh
 	################################################
-	os.system("cp misc/bgq-Opt.sh "+directory+"/Optimization/")
+	os.system("cp " + filePath + "misc/bgq-Opt.sh "+outerDir+"/Optimization/")
 
 	if multi:
 	    fileName= "optimize_1Body2Body_multi"
 	else:
 	    fileName= "optimize_1Body2Body_single"
-	os.system("cp misc/"+fileName+".py "+Opt_dir)
+	os.system("cp " + filePath + "misc/"+fileName+".py "+Opt_dir)
 	    
 	if reopt:
-		os.system("cp misc/optimize_coeffs.py "+Opt_dir)
+		os.system("cp " + filePath + "misc/optimize_coeffs.py "+Opt_dir)
 
 	if "3" in  Jtype:
-		os.system("cp misc/optimize_3Body.py "+Opt_dir)
+		os.system("cp " + filePath + "misc/optimize_3Body.py "+Opt_dir)
 
-	os.system("cp misc/optimize_finish.py "+Opt_dir)
+	os.system("cp " + filePath + "misc/optimize_finish.py "+Opt_dir)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 ## This code generates input to QMCPack by using quantum_package code
 
 """ 
@@ -18,11 +19,22 @@ Example of use:
 
 ### defaults to adding 3BodyJ
 
-version="0.0.1"
-import os
-import sys
-  
 try:
+    import os
+    import sys
+    thispath = os.path.abspath(sys.argv[0])
+    thispath = thispath.replace("setup_QMC_calculation.py","")
+    #print (thispath)
+    #print os.path.isdir(thispath)
+    #print thispath
+    sys.path.insert(0, thispath)
+    sys.path.insert(0, thispath+"misc/")
+    print sys.path[0]
+
+    import setupMethods 
+	
+    version="0.0.1"
+    from src.docopt import docopt
 except:
     print "File is corupted. Git reset may fix the issues"
     sys.exit(1)
@@ -30,6 +42,7 @@ except:
 if __name__ == '__main__':
 
     arguments = docopt(__doc__, version='G2 Api ' + version)
+
 
     ### Retrieve the arguments passed by the user
     if not (arguments["--filename"] and arguments["--method"]):
@@ -53,6 +66,7 @@ if __name__ == '__main__':
 	else:
 		reopt=False
 
-	from setupMethods import *
 	if method=="QP":
 		setupMethods.useQuantumPackageMethod(filename,nojastrow,use3Body,reopt)
+
+	print "Everything is done"

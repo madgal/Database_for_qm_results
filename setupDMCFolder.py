@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*- 
+
 import os
 ################################################
 #### Generate : DMC.xml
@@ -12,11 +15,21 @@ ptclfileroot=sys.argv[2]
 wfsfileroot=sys.argv[3]
 filename = sys.argv[4]
 usepp = sys.argv[5]
+elementList = sys.argv[6]
+filePath = sys.argv[7]
 
 if usepp:
     template_Name = "DMC_PP.xml"
-	for el in elementList:
-		os.system("cp /soft/qmcpack/pseudopotentials/BFD/"+el + ".BFD.xml " + outerDir)
+
+    ## remove the bracket from the beginning and end then 
+    ## parse by comma to get it back into list format
+    elementList = elementList.replace("[","")
+    elementList = elementList.replace("]","")
+    elementList = elementList.split(",")
+
+    for el in elementList:
+		#os.system("cp /soft/applications/qmcpack/pseudopotentials/BFD/"+el + ".BFD.xml " + outerDir)
+		os.system("cp ~/qmcpack-3.0.0/pseudopotentials/BFD/"+el + ".BFD.xml " + outerDir)
 
 else:
     template_Name = "DMC_AE.xml"
@@ -24,8 +37,8 @@ else:
 DMC_dir = outerDir + "/DMC"
 if not(os.path.isdir(DMC_dir)):
     os.mkdir(DMC_dir)
-os.system("cp misc/"+template_Name+" " +DMC_dir+"/DMC.xml")
-os.system("cp utils/format_data.py " +DMC_dir)
+os.system("cp " + filePath + "misc/"+template_Name+" " +DMC_dir+"/DMC.xml")
+os.system("cp " + filePath + "utils/format_data.py " +DMC_dir)
 
 
 myFile = DMC_dir+"/DMC.xml"
@@ -66,4 +79,4 @@ f.close()
 
 os.system("mv " + tmpfile + " " + myFile)
 
-os.system("cp misc/bgq-DMC.sh "+DMC_dir)
+os.system("cp " +filePath + "misc/bgq-DMC.sh "+DMC_dir)

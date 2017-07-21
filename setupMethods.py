@@ -4,6 +4,7 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 		 and generate the needed files to run QMC with qmcpack
 	'''
 	import os,sys
+	print sys.path
 
 	readEl=False
 	elementList=[]
@@ -42,12 +43,16 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 			elif readEl:
 				newEl =line.split(" ")[0]
 				if newEl not in elementList:
-					elementList.append(newEl)
+					elementList.append(str(newEl))
+	print "We have received all needed info"
 
 
 	if convertType !="QP":
 		print "There is an error: Are you sure this was generated with quantum package?"
     		sys.exit(1)
+
+	else:
+		print "The file is from quantum package"
 		
 	#print numDet
 	#print convertType
@@ -74,22 +79,48 @@ def useQuantumPackageMethod(filename,nojastrow,use3Body,reopt):
 	print "The input files will be place in ",local_fileroot,".ext"
 
 	#os.system("./misc/converter_independent.py "+convertType+" "+ filename+" "+ local_fileroot+" "+ flags)
-	from misc/converter_independent import *
-	do_conversion(convertType,filename,local_fileroot,flags)
+	import converter_independent
+	print "Beginning conversion"
+	converter_independent.do_conversion(convertType,filename,local_fileroot,flags)
+	print "Finished Conversion"
 
 	absfileroot = os.getcwd() + "/"+dirName + "/"+ fileroot
 	if not(doPseudo):
 		#os.system("./misc/setupCuspCorrection.py "+dirName+ " " + absfileroot+" " +multidet)
-		from misc/setupCuspCorrection import *
-		generate_CuspDir(dirName,absfileroot,multidet)
+		print "This is an all electron calculation so the Cusp correction is being added"
+		import setupCuspCorrection 
+		setupCuspCorrection.generate_CuspDir(dirName,absfileroot,multidet)
 	
+
+	### the files should be in one of these two paths which we appended 
+	### so that we could find the files when we executed them outside the
+	### directory containing them 
+	trypath1 = sys.path[0]
+	trypath2 = sys.path[1]
 	if multidet:
+		print "Multi reference system"
 		### this will call another program which will generate
 		### cutoff directories containing 
 		### optimization and DMC folders
-		os.system("./misc/generateCutoffDirs4QMC.py" + dirName + " " + absfileroot + " " +fileroot + "  " +doPseudo + " " +elementList)
+		for trypath in sys.path:
+			try: 
+				os.system("."+trypath+"generateCutoffDirs4QMC.py" + str(dirName) + " " + str(absfileroot) + " " +str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
+				
+			except Exception:
+				print "File not found in " ,trypath,", so trying again"
+			else:
+				print "File executed"
+				break
+		
 	else:
+		print "Single reference system"
 		### generate the DMC and Optimization folders
-		os.system("./misc/setupDMCFolder.py " + dirName + " " + absfileroot + " " + absfileroot+" " +fileroot + "  " +doPseudo + " " +elementList)
-		os.system("./misc/setupOptFolder.py "+ dirName + " " + absfileroot + " " + absfileroot+" " +fileroot + "  " +doPseudo + " " +elementList)
-
+		for trypath in sys.path:
+			if os.path.exists(trypath+"setupDMCFolder.py") and os.path.exists(trypath+"setupOptFolder.py"):
+				os.system(trypath+"setupDMCFolder.py " + str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" " +str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
+				os.system(trypath+"setupOptFolder.py "+ str(dirName) + " " + str(absfileroot) + " " + str(absfileroot)+" " +str(fileroot) + "  " +str(doPseudo) + " " +str(elementList)+" " +str(trypath))
+				print "File executed, " , trypath
+				break
+			else:
+				print "File not found in " ,trypath,", so trying again"
+	print "setupMethod.py is done"

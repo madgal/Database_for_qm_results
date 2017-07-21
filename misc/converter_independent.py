@@ -12,9 +12,10 @@ def do_conversion(method,dumpfile,filename,flags):
 	'''
 
 	import os 
-	BINDIR ="/soft/applications/qmcpack/github/build_Intel_real/bin"
+	#BINDIR ="/soft/applications/qmcpack/github/build_Intel_real/bin"
+	BINDIR ="~/qmcpack-3.0.0/build/bin"
 
-	os.system(BINDIR+"/convert4qmc -"+method+" "+dumpfile +" "+ flags )
+	os.system(BINDIR+"/convert4qmc -"+method+" "+dumpfile +" "+ flags + " > conversion.out" )
 	os.rename("sample.Gaussian-G2.xml",filename+".wfs.xml")
 	os.rename("sample.Gaussian-G2.ptcl.xml",filename+".ptcl.xml")
 

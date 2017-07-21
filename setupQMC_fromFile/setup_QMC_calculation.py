@@ -29,10 +29,11 @@ try:
     #print thispath
     sys.path.insert(0, thispath)
     sys.path.insert(0, thispath+"misc/")
-    print sys.path[0]
 
+    thispath = thispath.replace("setupQMC_fromFile","Database")
+    print thispath
+    sys.path.insert(0,thispath)
     import setupMethods 
-	
     version="0.0.1"
     from src.docopt import docopt
 except:

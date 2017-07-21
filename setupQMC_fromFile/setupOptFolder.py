@@ -58,12 +58,18 @@ if Jtype!="No":
 		elementList = elementList.replace("]","")
 		elementList = elementList.split(",")
 	
+
+
+
 		count=0
 		for el in elementList:
+			#os.system("cp /soft/applications/qmcpack/pseudopotentials/BFD/"+el + ".BFD.xml " + outerDir)
+			os.system("cp ~/qmcpack-3.0.0/pseudopotentials/BFD/"+el + ".BFD.xml " + outerDir)
+
 			pairPot1.append(etree.Element("pseudo"))
 			pseudo = pairPot1[count]
 			pseudo.set("elementType",el)
-			el_path =outerDir+ "/"+el+".BFD.xml"
+			el_path = os.path.abspath(outerDir+ "/"+el+".BFD.xml")
 			pseudo.set("href",el_path)
 			count+=1
 	

@@ -58,7 +58,8 @@ if usepp:
 		pairPot1.append(etree.Element("pseudo"))
 		pseudo = pairPot1[count]
 		pseudo.set("elementType",el)
-		el_path =outerDir+"/"+el+".BFD.xml"
+		el_path = os.path.abspath(outerDir+ "/"+el+".BFD.xml")
+
 		pseudo.set("href",el_path)
 		count+=1
 	

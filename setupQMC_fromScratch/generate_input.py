@@ -24,8 +24,12 @@ Example of use:
 version="0.0.1"
 import os
 import sys
-  
 try:
+    thispath = os.path.abspath(sys.argv[0])
+    thispath = thispath.replace("setupQMC_fromScratch/generate_input.py","")
+    sys.path.insert(0, thispath)
+    sys.path.insert(0, thispath+"setupQMC_fromScratch/")
+  
     from src.docopt import docopt
     from src.SQL_util import cond_sql_or, list_geo, list_ele, dict_raw
     from src.SQL_util import get_xyz, get_g09

@@ -194,7 +194,7 @@ if __name__ == '__main__':
         from unpackXML import *
 
         runNum = getNum()
-        [wfsFile,wfsInfo]   =pullDataFromWFS(wfsname,runNum)
+        [wfsInfo,wfsFile]   =pullDataFromWFS(wfsname,runNum)
         [ptclFile]	   =pullDataFromPTCL(ptclname,runNum)
         [optFile]	   =pullDataFromOPT(optname,runNum)
         [dmcFile,projectId]=pullDataFromDMC(dmcname,runNum)

@@ -46,6 +46,12 @@ def pullDataFromWFS(filename,runNum):
                                 j3list = j3list +",id="                 + subChild[0].get("id")
                                 j3list = j3list +"coefficients=\""      + subChild[0].text+"\")"
 
+	wfsFile = etree.tostring(wfs)
+
+	neededInfo = [cuspCorrection,multidet,j2list,j1list,j3list]
+
+	return [neededInfo,wfsFile]
+
 
 	
 

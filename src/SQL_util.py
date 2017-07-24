@@ -245,7 +245,7 @@ def add_qmc_energy(run_id, id_, e, err, overwrite=False, commit=False):
         cmd = """INSERT INTO qmc_energy_tab(run_id,id,energy,err)
                   VALUES (?,?,?,?)"""
 
-    #c.execute(cmd, [run_id, id_, e, err])
+    c.execute(cmd, [run_id, id_, e, err])
 
     if commit:
         conn.commit()
@@ -331,38 +331,31 @@ def add_energies_cispi(run_list, geo_list, basis_list, path, tail,
 
             index += 1
 
-def add_qmc_input_metadata(wfsInfo,filesForInput,additionalInfo,debug=False):
+def add_qmc_input_metadata(run_id,id_,wfsInfo,filesForInput,overwrite=False,commit=False):
     # Add input files to database so that others can verify/recreate results
-    print "Add qmc info"
+    print "Adding qmc info"
     
     # input the files for recreation
     [optFile,dmcFile,wfsFile,ptclFile] = filesForInput
 
     ## input the metadata for other scientists benefits
-    [cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list]= wfsInfo
-    [wfs_method,basis,geometry,comments] = additionalInfo
+    [wfs_method,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list]= wfsInfo
 
-    run_id = 10
-    id_ =  10
 
-    print run_id, id_
+    if overwrite:
+        cmd = """INSERT OR REPLACE INTO qmc_input_tab(run_id,id,wfs_method_cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?)"""
+    else:
+        cmd = """INSERT INTO qmc_input_tab(run_id,id,wfs_method,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3)
+                  VALUES (?,?,?,?,?,?,?,?,?,?,?)"""
 
-    if not debug:
-        try:
-            c.execute('''INSERT OR REPLACE INTO
-                        qmc_input_tab(id,name,optfile,dmcfile,wfsfile,ptclfile,cuspCorrection,multideterminant,Ndet,reoptCoeff,coeffCutoff,J2,J1,J3,wfs_method,basis,geometry,comments)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list,wfs_method,basis,geometry,comments])
+    c.execute(cmd, [run_id, id_, wfs_method,cuspCorrection,multidet,ndet,reoptCoeff,cutoff,j2list,j1list,j3list])
 
-            c.execute('''INSERT OR REPLACE INTO
-                        qmc_input_tab( id, name , optfile, dmcfile, wfsfile, ptclfile, cuspCorrection, multideterminant, J2, J1, J3, Ndet, reoptCoeff, coeffCutoff, wfs_method, basis, geometry,comments)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', [run_id, id_,optFile,dmcFile,wfsFile,ptclFile,cuspCorrection,multidet,j2list,j1list,j3list,ndet,reoptCoeff,cutoff,wfs_method,basis,geometry,comments])
+    if commit:
+        conn.commit()
 
 
 
-            conn.commit()
-        except Exception as err:
-            #raise Exception('Cannot add to the db')
-            print err
 
 # ______                         _
 # |  ___|                       | |

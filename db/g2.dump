@@ -3015,6 +3015,7 @@ INSERT INTO "run_tab" VALUES(138,13,3,1,'1Mdets');
 INSERT INTO "run_tab" VALUES(139,7,3,1,'Gaussian09');
 INSERT INTO "run_tab" VALUES(140,7,4,1,'Gaussian09');
 INSERT INTO "run_tab" VALUES(141,6,3,1,'Quantum Package');
+INSERT INTO "run_tab" VALUES(142,6,3,1,'TEST');
 CREATE TABLE method_tab(
                      method_id INTEGER PRIMARY KEY AUTOINCREMENT,
                           name CHARACTER(32),
@@ -21800,13 +21801,29 @@ INSERT INTO "qmc_energy_tab" VALUES(137,30,-682.6194612534,0.0026052351);
 INSERT INTO "qmc_energy_tab" VALUES(137,98,-548.5148709082,0.0032961689);
 INSERT INTO "qmc_energy_tab" VALUES(137,137,-582.5002070783,0.0034858063);
 INSERT INTO "qmc_energy_tab" VALUES(137,47,-796.2752735176,0.0040491624);
-CREATE TABLE qmc_input_tab ( ID INT PRIMARY KEY , NAME TEXT , optfile TEXT, dmcfile TEXT, wfsfile TEXT, ptclfile TEXT, cuspCorrection TEXT, multideterminant TEXT, J2 TEXT, J1 TEXT, J3 TEXT, Ndet TEXT, reoptCoeff TEXT, coeffCutoff TEXT, wfs_method TEXT, basis TEXT, geometry TEXT, comments TEXT);
+CREATE TABLE qmc_input_tab(
+               run_id INTEGER,
+                   id INTEGER,
+               wfs_method TEXT,
+               cuspCorrection TEXT, 
+               multideterminant TEXT,
+               Ndet INTEGER,
+               reoptCoeff TEXT,
+               coeffCutoff DOUBLE PRECISION,
+               J2 TEXT,
+               J1 TEXT,
+               J3 TEXT, 
+               FOREIGN KEY(run_id) REFERENCES run_tab(run_id),
+               FOREIGN KEY(id) REFERENCES id_tab(id),
+               PRIMARY KEY (run_id,id)
+);
+INSERT INTO "qmc_input_tab" VALUES(142,54,'CIPSI','yes','YES',400896,'yes',0.01,'YES','YES','NO');
 DELETE FROM sqlite_sequence;
 INSERT INTO "sqlite_sequence" VALUES('id_tab',215);
 INSERT INTO "sqlite_sequence" VALUES('basis_tab',12);
 INSERT INTO "sqlite_sequence" VALUES('geo_tab',5);
 INSERT INTO "sqlite_sequence" VALUES('coord_tab',2117);
-INSERT INTO "sqlite_sequence" VALUES('run_tab',141);
+INSERT INTO "sqlite_sequence" VALUES('run_tab',142);
 INSERT INTO "sqlite_sequence" VALUES('method_tab',11);
 CREATE VIEW output_tab as
             SELECT  run_tab.run_id run_id,

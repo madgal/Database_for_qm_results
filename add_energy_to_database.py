@@ -110,5 +110,5 @@ if __name__ == '__main__':
             add_qmc_energy(run_id, id_, e, err,
                            overwrite=arguments["--overwrite"])
 
-	print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
+	#print "Please commit db/g2.dump changes to https://github.com/madgal/qmcpack_buddy"
     conn.commit()
